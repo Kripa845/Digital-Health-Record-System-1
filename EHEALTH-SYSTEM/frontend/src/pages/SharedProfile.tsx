@@ -54,7 +54,7 @@ export const SharedProfile: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`http://127.0.0.1:8000/api/public-profile/${token}/`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/public-profile/${token}/`);
         if (res.ok) {
           const json = await res.json();
           setData(json);
