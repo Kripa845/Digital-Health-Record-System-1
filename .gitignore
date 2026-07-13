@@ -1,0 +1,32 @@
+# Environments
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+venv/
+.venv/
+env/
+
+# Node/React
+node_modules/
+dist/
+build/
+npm-debug.log*
+.eslintcache
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
