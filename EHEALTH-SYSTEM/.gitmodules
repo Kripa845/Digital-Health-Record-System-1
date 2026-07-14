@@ -1,0 +1,3 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/Kripa845/Digital-Health-Record-System-1.git
