@@ -1,0 +1,77 @@
+# Render Blueprint — deploys the whole eHealth System.
+# Two services + a managed Postgres database.
+#
+# After the first deploy, note the generated URLs:
+#   Backend : https://digital-health-record-system-2.onrender.com
+#   Frontend: https://digital-health-record-system-3.onrender.com
+# The QR codes rendered by the app use `window.location.origin`, i.e. the
+# FRONTEND URL above, so scanning them on a phone opens the public profile
+# on the deployed site.
+
+databases:
+  - name: ehealth-db
+    databaseName: ehealth
+    user: ehealth
+    plan: free
+
+services:
+  # ── Django REST API ───────────────────────────────────────────────────────
+  - type: web
+    name: digital-health-record-system-2
+    runtime: python
+    rootDir: EHEALTH-SYSTEM/backend
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ehealth-db
+          property: connectionString
+      # Allow the deployed React frontend to call this API (CORS).
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: digital-health-record-system-3
+          property: url
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "False"
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        value: kripashrestha180@gmail.com
+      - key: EMAIL_HOST_PASSWORD
+        value: obbjujsnqkjvegqb
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: DEFAULT_FROM_EMAIL
+        value: kripashrestha180@gmail.com
+
+  # ── React (Vite) SPA, served as a static site ─────────────────────────────
+  - type: web
+    name: digital-health-record-system-3
+    runtime: static
+    rootDir: EHEALTH-SYSTEM/frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Points the built app at the deployed backend. Must end with /api.
+      - key: VITE_API_URL
+        value: https://digital-health-record-system-2.onrender.com/api
+    # SPA deep links (e.g. /shared-profile/<token>) must serve index.html.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

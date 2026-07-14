@@ -32,6 +32,8 @@ interface PatientProfileData {
   recent_pain: string;
   is_profile_setup: boolean;
   qr_token: string;
+  scan_count?: number;
+  last_scanned_at?: string | null;
 }
 
 interface FamilyMemberData {
@@ -50,6 +52,8 @@ interface FamilyMemberData {
   current_medication: string;
   recent_pain: string;
   qr_token: string;
+  scan_count?: number;
+  last_scanned_at?: string | null;
 }
 
 interface DocumentData {
@@ -166,6 +170,38 @@ export const PatientDashboard: React.FC = () => {
 
   useEffect(() => {
     loadDashboardData();
+  }, []);
+
+  // Live scan-count refresh (point 9 & 10): polls only the counters so it
+  // never overwrites fields the user is currently editing.
+  const refreshScanCounts = async () => {
+    try {
+      const profRes = await apiFetch('/patients/me/');
+      if (profRes.ok) {
+        const profData = await profRes.json();
+        setProfile(prev => prev ? { ...prev, scan_count: profData.scan_count, last_scanned_at: profData.last_scanned_at } : prev);
+      }
+      const famRes = await apiFetch('/family/');
+      if (famRes.ok) {
+        const famData = await famRes.json();
+        setFamilyMembers(prev => prev.map(m => {
+          const upd = famData.find((f: FamilyMemberData) => f.id === m.id);
+          return upd ? { ...m, scan_count: upd.scan_count, last_scanned_at: upd.last_scanned_at } : m;
+        }));
+        setSelectedFamilyMember(prev => {
+          if (!prev) return prev;
+          const upd = famData.find((f: FamilyMemberData) => f.id === prev.id);
+          return upd ? { ...prev, scan_count: upd.scan_count, last_scanned_at: upd.last_scanned_at } : prev;
+        });
+      }
+    } catch (err) {
+      // Ignore transient polling errors.
+    }
+  };
+
+  useEffect(() => {
+    const id = setInterval(refreshScanCounts, 10000);
+    return () => clearInterval(id);
   }, []);
 
   // Fetch documents whenever filter changes
@@ -1495,6 +1531,17 @@ export const PatientDashboard: React.FC = () => {
               </p>
             </div>
 
+            {/* Live scan count (updates automatically) */}
+            <div style={{ marginBottom: '1.5rem', background: 'rgba(0, 137, 123, 0.05)', border: '1px solid rgba(0, 137, 123, 0.15)', padding: '1rem', borderRadius: '10px', textAlign: 'left' }}>
+              <p style={{ fontSize: '0.7rem', color: '#2c4a4a', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.25rem' }}>Total Scans</p>
+              <p style={{ fontSize: '1.6rem', fontWeight: 800, color: '#00897b', lineHeight: 1 }}>
+                {profile?.scan_count ?? 0}
+                <span style={{ fontSize: '0.8rem', fontWeight: 500, color: '#2c4a4a', marginLeft: '0.4rem' }}>
+                  {profile?.last_scanned_at ? `(last ${new Date(profile.last_scanned_at).toLocaleString()})` : '(no scans yet)'}
+                </span>
+              </p>
+            </div>
+
             <button 
               onClick={() => downloadQRCode('main-patient-qr-canvas', patientFullName)}
               className="btn btn-primary" 
@@ -1638,6 +1685,18 @@ export const PatientDashboard: React.FC = () => {
                           level="H"
                         />
                       </div>
+
+                      {/* Live scan count */}
+                      <div style={{ marginBottom: '1rem', background: 'rgba(0, 137, 123, 0.05)', border: '1px solid rgba(0, 137, 123, 0.15)', padding: '0.8rem', borderRadius: '10px', textAlign: 'left' }}>
+                        <p style={{ fontSize: '0.7rem', color: '#2c4a4a', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.2rem' }}>Total Scans</p>
+                        <p style={{ fontSize: '1.3rem', fontWeight: 800, color: '#00897b', lineHeight: 1 }}>
+                          {selectedFamilyMember.scan_count ?? 0}
+                          <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#2c4a4a', marginLeft: '0.4rem' }}>
+                            {selectedFamilyMember.last_scanned_at ? `(last ${new Date(selectedFamilyMember.last_scanned_at).toLocaleString()})` : '(no scans yet)'}
+                          </span>
+                        </p>
+                      </div>
+
                       <button 
                         onClick={() => downloadQRCode(`fam-qr-canvas-${selectedFamilyMember.id}`, `${selectedFamilyMember.first_name}_${selectedFamilyMember.relationship}`)}
                         className="btn btn-secondary" 

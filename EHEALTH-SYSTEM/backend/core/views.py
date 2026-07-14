@@ -6,7 +6,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Q, F
+from django.utils import timezone
 import random
 
 from .models import User, PatientProfile, MedicalHistoryEntry, PatientOTP, FamilyMemberProfile, PatientDocument
@@ -390,9 +391,16 @@ def reset_password(request):
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def public_profile(request, token):
+    now = timezone.now()
+
     # Try Patient Profile first
     profile = PatientProfile.objects.filter(qr_token=token).first()
     if profile:
+        PatientProfile.objects.filter(pk=profile.pk).update(
+            scan_count=F('scan_count') + 1,
+            last_scanned_at=now,
+        )
+        profile.refresh_from_db()
         docs = PatientDocument.objects.filter(patient=profile, family_member__isnull=True)
         family = FamilyMemberProfile.objects.filter(patient=profile)
         return Response({
@@ -405,6 +413,11 @@ def public_profile(request, token):
     # Try Family Member Profile
     family_member = FamilyMemberProfile.objects.filter(qr_token=token).first()
     if family_member:
+        FamilyMemberProfile.objects.filter(pk=family_member.pk).update(
+            scan_count=F('scan_count') + 1,
+            last_scanned_at=now,
+        )
+        family_member.refresh_from_db()
         docs = PatientDocument.objects.filter(family_member=family_member)
         return Response({
             "type": "FAMILY_MEMBER",

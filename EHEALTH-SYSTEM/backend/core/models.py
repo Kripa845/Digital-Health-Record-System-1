@@ -41,6 +41,8 @@ class PatientProfile(models.Model):
     recent_pain = models.TextField(blank=True)
     is_profile_setup = models.BooleanField(default=False)
     qr_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    scan_count = models.PositiveIntegerField(default=0)
+    last_scanned_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.healthcare_id:
@@ -71,6 +73,8 @@ class FamilyMemberProfile(models.Model):
     recent_pain = models.TextField(blank=True)
 
     qr_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    scan_count = models.PositiveIntegerField(default=0)
+    last_scanned_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -20,9 +20,9 @@ class PatientProfileSerializer(serializers.ModelSerializer):
             'id', 'user', 'healthcare_id', 'health_insurance_id', 'date_of_birth', 'gender', 
             'blood_type', 'contact_number', 'address', 'age', 'blood_group', 'emergency_contact', 
             'major_allergies', 'height', 'weight', 'active_prescription', 'current_medication', 
-            'recent_pain', 'is_profile_setup', 'qr_token'
+            'recent_pain', 'is_profile_setup', 'qr_token', 'scan_count', 'last_scanned_at'
         ]
-        read_only_fields = ['id', 'healthcare_id', 'qr_token']
+        read_only_fields = ['id', 'healthcare_id', 'qr_token', 'scan_count', 'last_scanned_at']
 
 class FamilyMemberProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,9 +30,10 @@ class FamilyMemberProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'patient', 'first_name', 'last_name', 'relationship', 'age', 'gender', 
             'blood_group', 'emergency_contact', 'major_allergies', 'height', 'weight', 
-            'active_prescription', 'current_medication', 'recent_pain', 'qr_token', 'created_at'
+            'active_prescription', 'current_medication', 'recent_pain', 'qr_token', 'created_at',
+            'scan_count', 'last_scanned_at'
         ]
-        read_only_fields = ['id', 'patient', 'qr_token', 'created_at']
+        read_only_fields = ['id', 'patient', 'qr_token', 'created_at', 'scan_count', 'last_scanned_at']
 
 class PatientDocumentSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()

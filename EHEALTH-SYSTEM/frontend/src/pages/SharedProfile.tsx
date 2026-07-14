@@ -26,6 +26,8 @@ interface PublicProfileData {
     active_prescription: string;
     current_medication: string;
     recent_pain: string;
+    scan_count?: number;
+    last_scanned_at?: string | null;
   };
   documents?: Array<{
     id: number;
@@ -50,9 +52,9 @@ export const SharedProfile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPublicProfile = async () => {
+    const fetchPublicProfile = async (showLoading = true) => {
       try {
-        setLoading(true);
+        if (showLoading) setLoading(true);
         setError(null);
         const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/public-profile/${token}/`);
         if (res.ok) {
@@ -64,13 +66,33 @@ export const SharedProfile: React.FC = () => {
       } catch (err) {
         setError("Network error. Unable to retrieve health record details.");
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     };
 
     if (token) {
       fetchPublicProfile();
     }
+  }, [token]);
+
+  // Auto-refresh so an openeed pass reflects live changes (point 10).
+  useEffect(() => {
+    if (!token) return;
+    const id = setInterval(() => {
+      const fetchPublicProfile = async () => {
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/public-profile/${token}/`);
+          if (res.ok) {
+            const json = await res.json();
+            setData(json);
+          }
+        } catch (err) {
+          // Ignore transient polling errors.
+        }
+      };
+      fetchPublicProfile();
+    }, 15000);
+    return () => clearInterval(id);
   }, [token]);
 
   if (loading) {
@@ -173,6 +195,17 @@ export const SharedProfile: React.FC = () => {
             fontWeight: 600
           }}>
             {type === 'PATIENT' ? 'Primary Profile' : `Sub-Profile (${profile.relationship})`}
+          </span>
+          <span style={{
+            fontSize: '0.8rem',
+            padding: '0.3rem 0.8rem',
+            background: 'rgba(0, 137, 123, 0.1)',
+            border: '1px solid rgba(0, 137, 123, 0.2)',
+            borderRadius: '8px',
+            color: '#00897b',
+            fontWeight: 600
+          }}>
+            Scans: {profile.scan_count ?? 0}
           </span>
         </div>
 
