@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { buildUrl, ENDPOINTS } from '../config/api';
 
 export interface User {
@@ -17,6 +17,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
+  serverStatus: 'unknown' | 'warming' | 'ready';
+  prewarmServer: () => void;
   loginInit: (username: string, password: string) => Promise<{ success: boolean; data?: any; error?: string }>;
   loginVerify: (userId: number, otpCode: string) => Promise<{ success: boolean; error?: string }>;
   forgotPassword: (email: string) => Promise<{ success: boolean; data?: any; error?: string }>;
@@ -77,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user,    setUser]    = useState<User | null>(null);
   const [token,   setToken]   = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [serverStatus, setServerStatus] = useState<'unknown' | 'warming' | 'ready'>('unknown');
 
   useEffect(() => {
     const savedToken = localStorage.getItem('eh_token');
@@ -106,35 +109,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return response;
   };
 
+  // ── Pre-warm the backend (free tier spins down) ──────────────────────────
+  // Hit the API root when the login screen opens so the server is already
+  // awake by the time the user submits credentials.
+  const prewarmServer = useCallback(async () => {
+    setServerStatus('warming');
+    try {
+      await fetchWithTimeout(buildUrl(''), { method: 'GET' }, 60_000);
+    } catch {
+      // ignore — the real login call retries on network errors
+    } finally {
+      setServerStatus('ready');
+    }
+  }, []);
+
   // ── Login step 1: validate credentials → send OTP ────────────────────────
+  // Retries on network errors (cold start) so the first wake-up request
+  // recovers automatically instead of showing a hard error.
   const loginInit = async (
     username: string,
     password: string,
   ): Promise<{ success: boolean; data?: any; error?: string }> => {
-    try {
-      const url      = buildUrl(ENDPOINTS.LOGIN);
-      const response = await fetchWithTimeout(
-        url,
-        {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ username, password }),
-        },
-        60_000, // 60 s — generous for Render cold-start
-      );
+    const maxAttempts = 3;
+    let lastError = 'Unable to reach the server. Please try again.';
 
-      const data = await parseResponse(response);
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const url      = buildUrl(ENDPOINTS.LOGIN);
+        const response = await fetchWithTimeout(
+          url,
+          {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ username, password }),
+          },
+          60_000, // 60 s — generous for Render cold-start
+        );
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data.detail || data.error || data.message || 'Invalid username or password.',
-        };
+        const data = await parseResponse(response);
+
+        if (!response.ok) {
+          return {
+            success: false,
+            error: data.detail || data.error || data.message || 'Invalid username or password.',
+          };
+        }
+        return { success: true, data };
+      } catch (err) {
+        lastError = networkErrorMessage(err);
+        // Only retry on network failures (cold start); bad credentials
+        // already returned above.
+        if (attempt < maxAttempts - 1) {
+          await new Promise((r) => setTimeout(r, 4000));
+          continue;
+        }
       }
-      return { success: true, data };
-    } catch (err) {
-      return { success: false, error: networkErrorMessage(err) };
     }
+    return { success: false, error: lastError };
   };
 
   // ── Login step 2: verify OTP → issue JWT ─────────────────────────────────
@@ -274,7 +305,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider
       value={{
-        user, token, loading,
+        user, token, loading, serverStatus, prewarmServer,
         loginInit, loginVerify,
         forgotPassword, resetPassword,
         logout, registerPatient,

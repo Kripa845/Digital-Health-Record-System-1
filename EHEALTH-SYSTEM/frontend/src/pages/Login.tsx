@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { KeyRound, User as UserIcon, Lock, AlertCircle, ShieldAlert, Sparkles, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 export const Login: React.FC = () => {
-  const { loginInit, loginVerify, forgotPassword, resetPassword, user } = useAuth();
+  const { loginInit, loginVerify, forgotPassword, resetPassword, user, serverStatus, prewarmServer } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
@@ -40,6 +40,11 @@ export const Login: React.FC = () => {
       }
     }
   }, [user, navigate]);
+
+  // Wake the backend (free tier spins down) so login doesn't hit a cold start.
+  useEffect(() => {
+    prewarmServer();
+  }, [prewarmServer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,6 +187,25 @@ export const Login: React.FC = () => {
           filter: 'blur(30px)',
           pointerEvents: 'none'
         }}></div>
+
+        {/* Server warming-up hint (free tier cold start) */}
+        {serverStatus === 'warming' && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            color: '#00897b',
+            background: 'rgba(0, 137, 123, 0.08)',
+            border: '1px solid rgba(0, 137, 123, 0.2)',
+            padding: '0.8rem 1rem',
+            borderRadius: '12px',
+            fontSize: '0.85rem',
+            marginBottom: '1.5rem'
+          }}>
+            <Sparkles size={16} />
+            <span>Waking up the server… (free plan can take up to ~30s on first load)</span>
+          </div>
+        )}
 
         {/* Global Error Banner */}
         {error && (
