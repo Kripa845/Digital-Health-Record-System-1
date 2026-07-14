@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { KeyRound, User as UserIcon, Lock, AlertCircle, ShieldAlert, Sparkles, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 export const Login: React.FC = () => {
-  const { loginInit, loginVerify, forgotPassword, resetPassword, user, serverStatus, prewarmServer } = useAuth();
+  const { loginInit, loginVerify, forgotPassword, resetPassword, user, serverStatus, prewarmServer, ensureServerWarm } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
@@ -57,6 +57,9 @@ export const Login: React.FC = () => {
       return;
     }
 
+    // Wait for the backend to be awake (free-tier cold start) so we never
+    // hit a "Could not reach the server" error — just a brief warm-up wait.
+    await ensureServerWarm();
     const res = await loginInit(username, password);
     if (res.success) {
       // Trigger OTP input screen
@@ -666,7 +669,7 @@ export const Login: React.FC = () => {
                 }}
                 disabled={loading}
               >
-                {loading ? "Authenticating..." : "Log In as Patient"}
+                 {loading ? (serverStatus === 'warming' ? "Waking up server…" : "Authenticating…") : "Log In as Patient"}
               </button>
             </form>
 

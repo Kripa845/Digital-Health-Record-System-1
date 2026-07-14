@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { buildUrl, ENDPOINTS } from '../config/api';
 
 export interface User {
@@ -19,6 +19,7 @@ interface AuthContextType {
   loading: boolean;
   serverStatus: 'unknown' | 'warming' | 'ready';
   prewarmServer: () => void;
+  ensureServerWarm: () => Promise<void>;
   loginInit: (username: string, password: string) => Promise<{ success: boolean; data?: any; error?: string }>;
   loginVerify: (userId: number, otpCode: string) => Promise<{ success: boolean; error?: string }>;
   forgotPassword: (email: string) => Promise<{ success: boolean; data?: any; error?: string }>;
@@ -110,23 +111,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // ── Pre-warm the backend (free tier spins down) ──────────────────────────
-  // Hit the API root when the login screen opens so the server is already
-  // awake by the time the user submits credentials.
-  const prewarmServer = useCallback(async () => {
+  // Fires a long-lived request that bridges a cold start; the promise only
+  // resolves once the server actually answers, so login can await it and
+  // never hits a "Could not reach the server" error.
+  const warmPromiseRef = useRef<Promise<void> | null>(null);
+
+  const prewarmServer = useCallback((): Promise<void> => {
+    if (warmPromiseRef.current) return warmPromiseRef.current;
     setServerStatus('warming');
-    for (let i = 0; i < 6; i++) {
-      try {
-        await fetchWithTimeout(buildUrl(''), { method: 'GET' }, 60_000);
-        setServerStatus('ready');
-        return;
-      } catch {
-        // Server still spinning up (free tier) — wait and retry.
-        await new Promise((r) => setTimeout(r, 5000));
+    warmPromiseRef.current = (async () => {
+      for (let i = 0; i < 8; i++) {
+        try {
+          await fetchWithTimeout(buildUrl(''), { method: 'GET' }, 60_000);
+          setServerStatus('ready');
+          return;
+        } catch {
+          // Server still spinning up (free tier) — wait and retry.
+          await new Promise((r) => setTimeout(r, 5000));
+        }
       }
-    }
-    // Give up pre-warming; the login call still retries on network errors.
-    setServerStatus('ready');
+      setServerStatus('ready');
+    })();
+    return warmPromiseRef.current;
   }, []);
+
+  // Resolve once the backend is confirmed reachable.
+  const ensureServerWarm = useCallback((): Promise<void> => {
+    if (serverStatus === 'ready') return Promise.resolve();
+    return prewarmServer();
+  }, [prewarmServer, serverStatus]);
 
   // ── Login step 1: validate credentials → send OTP ────────────────────────
   // Retries on network errors (cold start) so the first wake-up request
@@ -311,7 +324,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider
       value={{
-        user, token, loading, serverStatus, prewarmServer,
+        user, token, loading, serverStatus, prewarmServer, ensureServerWarm,
         loginInit, loginVerify,
         forgotPassword, resetPassword,
         logout, registerPatient,
