@@ -76,11 +76,11 @@ export const Login: React.FC = () => {
       return;
     }
 
-    const success = await loginVerify(userId, otpCode);
-    if (success) {
+    const result = await loginVerify(userId, otpCode);
+    if (result.success) {
       // Redirection handled by useEffect
     } else {
-      setError("Invalid OTP code. Please enter the correct code printed to console.");
+      setError(result.error || "Invalid OTP code. Please check the code and try again.");
       setLoading(false);
     }
   };
@@ -91,7 +91,7 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     if (!forgotInput) {
-      setError("Please enter your Username or Phone number.");
+      setError("Please enter your email address.");
       setLoading(false);
       return;
     }
@@ -348,18 +348,18 @@ export const Login: React.FC = () => {
               </div>
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: '#1a3a3a' }}>Forgot Password</h2>
               <p style={{ color: '#2c4a4a', fontSize: '0.9rem' }}>
-                Recover your credentials using your username or phone number.
+                Enter the email address registered to your account. We will send a reset OTP there.
               </p>
             </div>
 
             {forgotStep === 1 ? (
               <form onSubmit={handleForgotPasswordRequest}>
                 <div className="form-group" style={{ marginBottom: '2rem' }}>
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Username or Phone Number</label>
+                  <label className="form-label" style={{ color: '#2c4a4a' }}>Email Address</label>
                   <div style={{ position: 'relative' }}>
                     <input 
-                      type="text" 
-                      placeholder="Enter username or registered phone"
+                      type="email"
+                      placeholder="Enter your registered email"
                       value={forgotInput}
                       onChange={(e) => setForgotInput(e.target.value)}
                       className="form-input"
