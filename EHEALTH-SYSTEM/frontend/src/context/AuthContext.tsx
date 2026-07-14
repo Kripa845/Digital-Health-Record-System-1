@@ -114,13 +114,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // awake by the time the user submits credentials.
   const prewarmServer = useCallback(async () => {
     setServerStatus('warming');
-    try {
-      await fetchWithTimeout(buildUrl(''), { method: 'GET' }, 60_000);
-    } catch {
-      // ignore — the real login call retries on network errors
-    } finally {
-      setServerStatus('ready');
+    for (let i = 0; i < 6; i++) {
+      try {
+        await fetchWithTimeout(buildUrl(''), { method: 'GET' }, 60_000);
+        setServerStatus('ready');
+        return;
+      } catch {
+        // Server still spinning up (free tier) — wait and retry.
+        await new Promise((r) => setTimeout(r, 5000));
+      }
     }
+    // Give up pre-warming; the login call still retries on network errors.
+    setServerStatus('ready');
   }, []);
 
   // ── Login step 1: validate credentials → send OTP ────────────────────────
@@ -158,9 +163,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err) {
         lastError = networkErrorMessage(err);
         // Only retry on network failures (cold start); bad credentials
-        // already returned above.
+        // already returned above. Space retries out so a 30–60s free-tier
+        // spin-up has time to finish.
         if (attempt < maxAttempts - 1) {
-          await new Promise((r) => setTimeout(r, 4000));
+          await new Promise((r) => setTimeout(r, 8000));
           continue;
         }
       }

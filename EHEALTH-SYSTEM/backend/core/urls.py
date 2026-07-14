@@ -15,6 +15,7 @@ from .views import (
     reset_password,
     public_profile,
     verify_reset_otp,
+    health_check,
 )
 
 router = DefaultRouter()
@@ -33,6 +34,9 @@ urlpatterns = [
     path('auth/forgot-password/', forgot_password, name='forgot-password'),
     path('auth/reset-password/', reset_password, name='reset-password'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+
+    # Public health check (no auth) — used by Render health checks
+    path('health/', health_check, name='health-check'),
 
     # Public QR scan (no auth)
     path('public-profile/<uuid:token>/', public_profile, name='public-profile'),

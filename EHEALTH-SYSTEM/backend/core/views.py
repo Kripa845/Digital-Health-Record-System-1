@@ -386,6 +386,15 @@ def reset_password(request):
 
 
 # ─────────────────────────────────────────────
+# PUBLIC HEALTH CHECK  (no auth required)
+# ─────────────────────────────────────────────
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def health_check(request):
+    return Response({"status": "ok"}, status=status.HTTP_200_OK)
+
+
+# ─────────────────────────────────────────────
 # PUBLIC QR SCAN VIEW  (no auth required)
 # ─────────────────────────────────────────────
 @api_view(['GET'])
