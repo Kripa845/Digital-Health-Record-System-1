@@ -319,52 +319,46 @@ def verify_reset_otp(request):
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def forgot_password(request):
-    username_or_phone = request.data.get('username_or_phone')
-    if not username_or_phone:
+    # The forgot-password screen only collects the user's email; the OTP is
+    # emailed, so we look the account up by email and only send the OTP when
+    # it matches a registered account.
+    email = request.data.get('email')
+    if not email:
         return Response(
-            {"detail": "Username or phone number is required."},
+            {"detail": "Email is required."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     user = User.objects.filter(
-        Q(username=username_or_phone) | Q(mobile_number=username_or_phone) | Q(email=username_or_phone)
+        Q(username=email) | Q(mobile_number=email) | Q(email=email)
     ).first()
 
-    if user:
-        
-        # Determine recipient email
-        email_to_send = None
-        if user.email:
-            email_to_send = user.email
-        elif '@' in username_or_phone:
-            email_to_send = username_or_phone
-            user.email = email_to_send
-            user.save()
-            
-        if not email_to_send:
-            return Response({"detail": "No email address found for this account to send recovery OTP."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        
-        otp_code = str(random.randint(100000, 999999))
-        PatientOTP.objects.create(user=user, otp_code=otp_code)
-        try:
-            send_otp_email(email_to_send, otp_code, purpose="password reset")
-        except Exception as e:
-            print(f"[EMAIL ERROR] Reset OTP email failed: {e}")
-        
+    if not user:
+        return Response(
+            {"detail": "No account found with that email address."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
-        return Response({
-            "status": "OTP_SENT",
-            "user_id": user.id,
-            "email": user.email,
-            "mobile_number": user.mobile_number,
-            
-        }, status=status.HTTP_200_OK)
+    email_to_send = user.email or email
+    if not email_to_send:
+        return Response(
+            {"detail": "No email address found for this account to send recovery OTP."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-    return Response(
-        {"detail": "No user found with the given credentials."},
-        status=status.HTTP_404_NOT_FOUND,
-    )
+    otp_code = str(random.randint(100000, 999999))
+    PatientOTP.objects.create(user=user, otp_code=otp_code)
+    try:
+        send_otp_email(email_to_send, otp_code, purpose="password reset")
+    except Exception as e:
+        print(f"[EMAIL ERROR] Reset OTP email failed: {e}")
+
+    return Response({
+        "status": "OTP_SENT",
+        "user_id": user.id,
+        "email": user.email,
+        "mobile_number": user.mobile_number,
+    }, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
