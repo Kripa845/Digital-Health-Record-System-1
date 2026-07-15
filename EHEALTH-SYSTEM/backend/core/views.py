@@ -9,6 +9,10 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q, F
 from django.utils import timezone
 import random
+import qrcode
+from io import BytesIO
+import base64
+from django.conf import settings
 
 from .models import User, PatientProfile, MedicalHistoryEntry, PatientOTP, FamilyMemberProfile, PatientDocument
 from .serializers import (
@@ -197,7 +201,9 @@ def login_init(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    user = User.objects.filter(Q(username=username) | Q(mobile_number=username)).first()
+    user = User.objects.filter(
+        Q(username=username) | Q(mobile_number=username) | Q(email=username)
+    ).first()
 
     if user and user.check_password(password):
         email_to_send = user.email
@@ -321,7 +327,7 @@ def forgot_password(request):
         )
 
     user = User.objects.filter(
-        Q(username=username_or_phone) | Q(mobile_number=username_or_phone)
+        Q(username=username_or_phone) | Q(mobile_number=username_or_phone) | Q(email=username_or_phone)
     ).first()
 
     if user:
@@ -506,4 +512,182 @@ class PatientDocumentViewSet(viewsets.ModelViewSet):
             family_member=family_member,
             file_size=file_size,
             file_type=file_type,
+        )
+
+
+# //////////////////////
+# ─────────────────────────────────────────────
+# QR CODE GENERATION
+# ─────────────────────────────────────────────
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def generate_qr_code(request):
+    """
+    Generate QR code for a patient or family member
+    POST /api/generate-qr/
+    Body: {"profile_type": "patient", "profile_id": 123}  # or {"profile_type": "family", "profile_id": 456}
+    """
+    try:
+        profile_type = request.data.get('profile_type', 'patient')
+        profile_id = request.data.get('profile_id')
+        
+        # If no profile_id provided, use the current user's patient profile
+        if not profile_id and request.user.role == User.Role.PATIENT:
+            profile = get_object_or_404(PatientProfile, user=request.user)
+            profile_id = profile.id
+            profile_type = 'patient'
+        
+        if not profile_id:
+            return Response(
+                {'error': 'profile_id is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get the profile and its QR token
+        qr_token = None
+        profile_data = None
+        
+        if profile_type == 'patient':
+            profile = get_object_or_404(PatientProfile, id=profile_id)
+            # Check if user has access (owner or admin)
+            if request.user.role != User.Role.ADMIN and profile.user != request.user:
+                return Response(
+                    {'error': 'You do not have permission to generate QR for this profile'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            qr_token = profile.qr_token
+            profile_data = {
+                'type': 'PATIENT',
+                'id': profile.id,
+                'name': f"{profile.user.first_name} {profile.user.last_name}",
+                'healthcare_id': profile.healthcare_id
+            }
+            
+        elif profile_type == 'family':
+            family_member = get_object_or_404(FamilyMemberProfile, id=profile_id)
+            # Check if user has access (owner or admin)
+            if request.user.role != User.Role.ADMIN and family_member.patient.user != request.user:
+                return Response(
+                    {'error': 'You do not have permission to generate QR for this profile'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            qr_token = family_member.qr_token
+            profile_data = {
+                'type': 'FAMILY_MEMBER',
+                'id': family_member.id,
+                'name': family_member.full_name,
+                'relationship': family_member.relationship
+            }
+        else:
+            return Response(
+                {'error': 'Invalid profile_type. Use "patient" or "family"'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not qr_token:
+            return Response(
+                {'error': 'QR token not found for this profile'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Generate QR URL
+        # Get frontend URL from settings or use default
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'https://digital-health-record-system-3.onrender.com')
+        
+        # The QR code will point to your frontend with the token
+        # Your frontend should have a route like /scan/{token}
+        qr_data = f"{frontend_url}/scan/{qr_token}"
+        
+        # Create QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        
+        # Generate image
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Convert to base64
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        
+        return Response({
+            'success': True,
+            'data': {
+                'qr_code': img_str,  # Base64 encoded image
+                'url': qr_data,      # The actual URL
+                'token': qr_token,   # The QR token
+                'profile': profile_data
+            }
+        })
+        
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_qr_token(request, profile_type, profile_id):
+    """
+    Get QR token for a profile without generating the image
+    GET /api/qr-token/{profile_type}/{profile_id}/
+    """
+    try:
+        if profile_type == 'patient':
+            profile = get_object_or_404(PatientProfile, id=profile_id)
+            if request.user.role != User.Role.ADMIN and profile.user != request.user:
+                return Response(
+                    {'error': 'Permission denied'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            qr_token = profile.qr_token
+            profile_data = {
+                'type': 'PATIENT',
+                'id': profile.id,
+                'name': f"{profile.user.first_name} {profile.user.last_name}",
+                'healthcare_id': profile.healthcare_id
+            }
+            
+        elif profile_type == 'family':
+            family_member = get_object_or_404(FamilyMemberProfile, id=profile_id)
+            if request.user.role != User.Role.ADMIN and family_member.patient.user != request.user:
+                return Response(
+                    {'error': 'Permission denied'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            qr_token = family_member.qr_token
+            profile_data = {
+                'type': 'FAMILY_MEMBER',
+                'id': family_member.id,
+                'name': family_member.full_name,
+                'relationship': family_member.relationship
+            }
+        else:
+            return Response(
+                {'error': 'Invalid profile_type'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'https://digital-health-record-system-3.onrender.com')
+        
+        return Response({
+            'success': True,
+            'data': {
+                'token': qr_token,
+                'url': f"{frontend_url}/scan/{qr_token}",
+                'profile': profile_data
+            }
+        })
+        
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
