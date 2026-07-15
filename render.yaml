@@ -37,10 +37,7 @@ services:
           property: connectionString
       # Allow the deployed React frontend to call this API (CORS).
       - key: FRONTEND_URL
-        fromService:
-          type: web
-          name: digital-health-record-system-3
-          property: url
+        value: https://digital-health-record-system-3.onrender.com 
       - key: CORS_ALLOW_ALL_ORIGINS
         value: "False"
       - key: EMAIL_HOST
@@ -55,6 +52,8 @@ services:
         value: "True"
       - key: DEFAULT_FROM_EMAIL
         value: kripashrestha180@gmail.com
+      - key: RENDER_EXTERNAL_HOSTNAME
+        value: digital-health-record-system-2.onrender.com
 
   # ── React (Vite) SPA, served as a static site ─────────────────────────────
   - type: web
