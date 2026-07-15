@@ -90,13 +90,23 @@ DATABASES = {
     }
 }
 
-# Use PostgreSQL on Render when DATABASE_URL is provided (ephemeral SQLite otherwise).
+# Use PostgreSQL on Render. Never silently fall back to SQLite in production:
+# SQLite lives on Render's ephemeral disk, so all data is lost on every cold
+# start / restart (which produced "invalid credentials" after a break).
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+
 DATABASE_URL = config('DATABASE_URL', default=None)
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600),
     }
+elif not DEBUG and RENDER_EXTERNAL_HOSTNAME:
+    raise ImproperlyConfigured(
+        "DATABASE_URL is not set. On Render you must attach a PostgreSQL "
+        "database (Service → Environment → add DATABASE_URL → From Database) "
+        "or user data will not persist across restarts."
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
