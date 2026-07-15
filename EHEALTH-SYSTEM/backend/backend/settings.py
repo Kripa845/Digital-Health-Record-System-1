@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-cz8s=dxg-wo0%%0eci_2$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]','digital-health-record-system-2.onrender.com','.onrender.com']
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default=None)
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -97,16 +97,18 @@ import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 DATABASE_URL = config('DATABASE_URL', default=None)
-if DATABASE_URL:
+USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
+if DATABASE_URL and not USE_SQLITE:
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600),
     }
-elif not DEBUG and RENDER_EXTERNAL_HOSTNAME:
-    raise ImproperlyConfigured(
-        "DATABASE_URL is not set. On Render you must attach a PostgreSQL "
-        "database (Service → Environment → add DATABASE_URL → From Database) "
-        "or user data will not persist across restarts."
-    )
+else:
+     DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -144,7 +146,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -195,14 +197,16 @@ CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=boo
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "https://digital-health-record-system-3.onrender.com",
 ]
-FRONTEND_URL = config('FRONTEND_URL', default=None)
+FRONTEND_URL = config('FRONTEND_URL', default='https://digital-health-record-system-3.onrender.com')
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 CSRF_TRUSTED_ORIGINS = [
+    "https://digital-health-record-system-3.onrender.com",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
