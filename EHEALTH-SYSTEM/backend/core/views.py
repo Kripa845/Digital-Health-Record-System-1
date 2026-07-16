@@ -220,12 +220,13 @@ def login_init(request):
 
         otp_code = str(random.randint(100000, 999999))
         PatientOTP.objects.create(user=user, otp_code=otp_code)
-        try:
-            send_otp_email(email_to_send, otp_code, purpose="login")
-        except Exception as e:
-            # Email is optional (the OTP is also shown in the UI), so never
-            # let a mail failure block login.
-            print(f"[EMAIL ERROR] OTP email failed: {e}")
+        # try:
+        #     send_otp_email(email_to_send, otp_code, purpose="login")
+        # except Exception as e:
+        #     # Email is optional (the OTP is also shown in the UI), so never
+        #     # let a mail failure block login.
+        #     print(f"[EMAIL ERROR] OTP email failed: {e}")
+        print(f"[DEV] OTP for {email_to_send}: {otp_code}")
 
         return Response({
             "status": "OTP_SENT",
@@ -348,11 +349,11 @@ def forgot_password(request):
 
     otp_code = str(random.randint(100000, 999999))
     PatientOTP.objects.create(user=user, otp_code=otp_code)
-    try:
-        send_otp_email(email_to_send, otp_code, purpose="password reset")
-    except Exception as e:
-        print(f"[EMAIL ERROR] Reset OTP email failed: {e}")
-
+    # try:
+    #     send_otp_email(email_to_send, otp_code, purpose="password reset")
+    # except Exception as e:
+    #     print(f"[EMAIL ERROR] Reset OTP email failed: {e}")
+    print(f"[DEV] Password reset OTP for {email_to_send}: {otp_code}")
     return Response({
         "status": "OTP_SENT",
         "user_id": user.id,

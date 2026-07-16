@@ -16,6 +16,7 @@ from .views import (
     public_profile,
     verify_reset_otp,
     health_check,
+    get_qr_token
 )
 
 router = DefaultRouter()
@@ -40,7 +41,10 @@ urlpatterns = [
 
     # Public QR scan (no auth)
     path('public-profile/<uuid:token>/', public_profile, name='public-profile'),
-
+      path('qr-token/<str:profile_type>/<int:profile_id>/', get_qr_token, name='get-qr-token'),
+    
+    # Alternative: Get QR token for current user's patient profile
+    path('qr-token/me/', get_qr_token, name='get-qr-token-me'),
     # ViewSet routes
     path('', include(router.urls)),
 ]
