@@ -448,7 +448,7 @@ export const PatientDashboard: React.FC = () => {
   if (profile && !profile.is_profile_setup) {
     return (
       <div className="container" style={{ 
-        maxWidth: '700px', 
+        maxWidth: '100%', 
         padding: '2rem 1.5rem',
         background: 'linear-gradient(135deg, #e8f5e9 0%, #e0f2f1 30%, #b2dfdb 60%, #c8e6c9 100%)',
         minHeight: '100vh'

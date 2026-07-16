@@ -10,6 +10,7 @@ import { PatientDashboard } from './pages/PatientDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { SharedProfile } from './pages/SharedProfile';
 
+
 // Layout that wraps standard pages and includes the Navbar
 const MainLayout: React.FC = () => {
   return (

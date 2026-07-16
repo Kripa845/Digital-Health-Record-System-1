@@ -206,7 +206,7 @@ export const SharedProfile: React.FC = () => {
             color: '#00897b',
             fontWeight: 600
           }}>
-            Scans: {profile.scan_count ?? 0}
+            Scans: {profile.scan_count ?? 1}
           </span>
         </div>
 

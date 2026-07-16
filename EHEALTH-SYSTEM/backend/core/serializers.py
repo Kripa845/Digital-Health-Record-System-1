@@ -120,4 +120,18 @@ class MedicalHistoryEntrySerializer(serializers.ModelSerializer):
         fields = ['id', 'patient', 'title', 'description', 'category', 'date_recorded']
         read_only_fields = ['id', 'patient', 'date_recorded']
 
+class PublicProfileSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = PatientProfile
+
+        fields = [
+            "full_name",
+            "blood_group",
+            "age",
+            "gender",
+            "allergies",
+            "medical_conditions",
+            "emergency_contacts",
+            "documents",
+        ]

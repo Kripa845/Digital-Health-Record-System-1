@@ -4,10 +4,12 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, F
 from django.utils import timezone
+from rest_framework.views import APIView
 import random
 import qrcode
 from io import BytesIO
@@ -21,6 +23,7 @@ from .serializers import (
     MedicalHistoryEntrySerializer,
     FamilyMemberProfileSerializer,
     PatientDocumentSerializer,
+    PublicProfileSerializer
 )
 
 
@@ -686,3 +689,20 @@ def get_qr_token(request, profile_type, profile_id):
             {'error': str(e)}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+        
+        
+        
+class PublicProfileView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, token):
+
+        patient = get_object_or_404(
+            PatientProfile,
+            public_token=token
+        )
+
+        serializer = PublicProfileSerializer(patient)
+
+        return Response(serializer.data)
