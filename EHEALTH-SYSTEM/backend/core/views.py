@@ -591,7 +591,7 @@ def generate_qr_code(request):
         
         # The QR code will point to your frontend with the token
         # Your frontend should have a route like /scan/{token}
-        qr_data = f"{frontend_url}/scan/{qr_token}"
+        qr_data = f"{frontend_url}/shared-profile/{qr_token}"
         
         # Create QR code
         qr = qrcode.QRCode(
