@@ -1,31 +1,26 @@
 // ─── API base URL ─────────────────────────────────────────────────────────────
 //
-// Resolution order:
-//  1. VITE_API_URL env var (must start with "http" to be used)
-//     → Set via .env.production or Render's environment panel
-//  2. import.meta.env.PROD === true  → hardcoded production backend (safest fallback)
-//  3. Local dev                      → '/api' (Vite proxy forwards to Django :8000)
+// In production we ALWAYS use the known, correct backend URL. We no longer trust
+// VITE_API_URL blindly, because a wrong value (e.g. pointing at the frontend
+// site) makes every API call 404. The env var is only a dev convenience.
 //
-// The hardcoded fallback in step 2 means the app works correctly on Render even
-// if .env.production is missing or VITE_API_URL is empty/undefined.
+//   - Local dev (import.meta.env.DEV)  → '/api' (Vite proxy → Django :8000)
+//   - Production build                  → hardcoded backend below
+//
+// Update this single constant if the backend URL ever changes.
 
 const PRODUCTION_BACKEND = 'https://digital-health-record-system-2.onrender.com/api';
 
 function resolveApiBase(): string {
-  const env = import.meta.env.VITE_API_URL as string | undefined;
-
-  // Only trust the env var if it's a real absolute URL
-  if (env && env.startsWith('http')) {
-    return env.replace(/\/+$/, ''); // strip any trailing slashes
+  // Local development: let Vite proxy /api to the Django dev server.
+  if (import.meta.env.DEV) {
+    console.log('✅ Using /api dev proxy');
+    return '/api';
   }
 
-  // Production build but no valid env var → always use the hardcoded backend
-  if (import.meta.env.PROD) {
-    return PRODUCTION_BACKEND;
-  }
-
-  // Local dev: Vite proxy handles /api → http://127.0.0.1:8000
-  return '/api';
+  // Production: always use the correct backend URL.
+  console.log('✅ Using production backend:', PRODUCTION_BACKEND);
+  return PRODUCTION_BACKEND;
 }
 
 export const API_BASE = resolveApiBase();

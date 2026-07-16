@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config/api';
 import { QRCodeCanvas } from 'qrcode.react';
 
 import { 
@@ -282,7 +283,7 @@ export const PatientDashboard: React.FC = () => {
       }
 
       // Upload file directly using native fetch to handle FormData boundaries
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/documents/`, {
+      const response = await fetch(`${API_BASE}/documents/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Shield, FileText, Heart, User, Sparkles, Download, Phone, ClipboardList, AlertTriangle } from 'lucide-react';
+import { API_BASE } from '../config/api';
 
 interface PublicProfileData {
   type: 'PATIENT' | 'FAMILY_MEMBER';
@@ -56,7 +57,7 @@ export const SharedProfile: React.FC = () => {
       try {
         if (showLoading) setLoading(true);
         setError(null);
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/public-profile/${token}/`);
+        const res = await fetch(`${API_BASE}/public-profile/${token}/`);
         if (res.ok) {
           const json = await res.json();
           setData(json);
@@ -81,7 +82,7 @@ export const SharedProfile: React.FC = () => {
     const id = setInterval(() => {
       const fetchPublicProfile = async () => {
         try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/public-profile/${token}/`);
+        const res = await fetch(`${API_BASE}/public-profile/${token}/`);
           if (res.ok) {
             const json = await res.json();
             setData(json);
