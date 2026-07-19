@@ -63,7 +63,7 @@ export const Home: React.FC = () => {
             background: 'linear-gradient(135deg, #00695c, #1a3a3a)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
-          }}>Your Digital Vitals Ledger.</span>
+          }}>Your Health, Unified. Your Vitals, Secured.</span>
         </h1>
         <p className="hero-subtitle" style={{ 
           maxWidth: '700px', 
@@ -71,7 +71,7 @@ export const Home: React.FC = () => {
           fontSize: '1.1rem', 
           color: '#2c4a4a'
         }}>
-          A secure, dynamic health card system powered by secure QR tokens. Share your updated vitals, allergy lists, and document vault with verified medical providers instantly.
+         Streamline how you manage and share your medical history. Mero Care Card acts as your central digital health ledger, allowing you to securely organize your medical records and grant instant access to verified healthcare professionals via a secure, quick-scan QR code.
         </p>
         
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -227,7 +227,7 @@ export const Home: React.FC = () => {
             </div>
             <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: '#1a3a3a' }}>MFA & OTP Protection</h3>
             <p style={{ fontSize: '0.9rem', color: '#2c4a4a' }}>
-              Login securely using mobile number or username, backed by random 6-digit OTP verification codes sent during each access request.
+              Login securely using mobile username, backed by random 6-digit OTP verification codes sent during each access request.
             </p>
           </div>
 
@@ -517,4 +517,4 @@ export const Home: React.FC = () => {
       </footer>
     </div>
   );
-};
+};  
