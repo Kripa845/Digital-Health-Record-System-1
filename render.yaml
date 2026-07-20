@@ -1,5 +1,5 @@
 # Render Blueprint — deploys the whole eHealth System.
-# Two services + a managed Postgres database.
+# Backend + frontend on Render, database on Neon.
 #
 # After the first deploy, note the generated URLs:
 #   Backend : https://digital-health-record-system-2.onrender.com
@@ -7,12 +7,6 @@
 # The QR codes rendered by the app use `window.location.origin`, i.e. the
 # FRONTEND URL above, so scanning them on a phone opens the public profile
 # on the deployed site.
-
-databases:
-  - name: djangobackend
-    databaseName: djangobackend_x54d
-    user: djangobackend_uf41_user
-    plan: free
 
 services:
   # ── Django REST API ───────────────────────────────────────────────────────
@@ -33,9 +27,7 @@ services:
       - key: DEBUG
         value: "False"
       - key: DATABASE_URL
-        fromDatabase:
-          name: djangobackend
-          property: connectionString
+        value: postgresql://neondb_owner:npg_wsjcSKaF9d7N@ep-delicate-rice-aucp5h61-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require
       # Allow the deployed React frontend to call this API (CORS).
       - key: FRONTEND_URL
         value: https://digital-health-record-system-3.onrender.com 
