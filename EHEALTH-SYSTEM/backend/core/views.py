@@ -209,31 +209,38 @@ def login_init(request):
     ).first()
 
     if user and user.check_password(password):
-        email_to_send = user.email
-        if not email_to_send and '@' in username:
-            email_to_send = username
-            user.email = email_to_send
-            user.save()
+     email_to_send = user.email
 
-        if not email_to_send:
-            return Response(
-                {"detail": "No email address found for this account."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        try:
-         send_otp_email(email_to_send, otp_code, purpose="login")
-        except Exception as e:
-         import traceback
-         traceback.print_exc()
-         print(f"[EMAIL ERROR] {e}")
+    if not email_to_send and '@' in username:
+        email_to_send = username
+        user.email = email_to_send
+        user.save()
 
-# Continue even if email fails
-        return Response({
-           "status": "OTP_SENT",
-           "user_id": user.id,
-           "email": user.email,
-        }, status=status.HTTP_200_OK)
+    if not email_to_send:
+        return Response(
+            {"detail": "No email address found."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
+    # Generate OTP FIRST
+    otp_code = str(random.randint(100000, 999999))
+
+    # Save OTP
+    PatientOTP.objects.create(user=user, otp_code=otp_code)
+
+    # Send Email
+    try:
+        send_otp_email(email_to_send, otp_code, purpose="login")
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print("[EMAIL ERROR]", e)
+
+    return Response({
+        "status": "OTP_SENT",
+        "user_id": user.id,
+        "email": user.email,
+    })
     #     otp_code = str(random.randint(100000, 999999))
     #     PatientOTP.objects.create(user=user, otp_code=otp_code)
     #     # try:
