@@ -1533,7 +1533,7 @@ export const PatientDashboard: React.FC = () => {
             </div>
 
             {/* Live scan count (updates automatically) */}
-            <div style={{ marginBottom: '1.5rem', background: 'rgba(0, 137, 123, 0.05)', border: '1px solid rgba(0, 137, 123, 0.15)', padding: '1rem', borderRadius: '10px', textAlign: 'left' }}>
+            {/* <div style={{ marginBottom: '1.5rem', background: 'rgba(0, 137, 123, 0.05)', border: '1px solid rgba(0, 137, 123, 0.15)', padding: '1rem', borderRadius: '10px', textAlign: 'left' }}>
               <p style={{ fontSize: '0.7rem', color: '#2c4a4a', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.25rem' }}>Total Scans</p>
               <p style={{ fontSize: '1.6rem', fontWeight: 800, color: '#00897b', lineHeight: 1 }}>
                 {profile?.scan_count ?? 0}
@@ -1541,7 +1541,7 @@ export const PatientDashboard: React.FC = () => {
                   {profile?.last_scanned_at ? `(last ${new Date(profile.last_scanned_at).toLocaleString()})` : '(no scans yet)'}
                 </span>
               </p>
-            </div>
+            </div> */}
 
             <button 
               onClick={() => downloadQRCode('main-patient-qr-canvas', patientFullName)}
@@ -1686,8 +1686,8 @@ export const PatientDashboard: React.FC = () => {
                           level="H"
                         />
                       </div>
-
-                      {/* Live scan count */}
+{/* 
+                      Live scan count
                       <div style={{ marginBottom: '1rem', background: 'rgba(0, 137, 123, 0.05)', border: '1px solid rgba(0, 137, 123, 0.15)', padding: '0.8rem', borderRadius: '10px', textAlign: 'left' }}>
                         <p style={{ fontSize: '0.7rem', color: '#2c4a4a', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.2rem' }}>Total Scans</p>
                         <p style={{ fontSize: '1.3rem', fontWeight: 800, color: '#00897b', lineHeight: 1 }}>
@@ -1696,7 +1696,7 @@ export const PatientDashboard: React.FC = () => {
                             {selectedFamilyMember.last_scanned_at ? `(last ${new Date(selectedFamilyMember.last_scanned_at).toLocaleString()})` : '(no scans yet)'}
                           </span>
                         </p>
-                      </div>
+                      </div> */}
 
                       <button 
                         onClick={() => downloadQRCode(`fam-qr-canvas-${selectedFamilyMember.id}`, `${selectedFamilyMember.first_name}_${selectedFamilyMember.relationship}`)}

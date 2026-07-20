@@ -140,24 +140,24 @@ class MedicalHistoryEntryViewSet(viewsets.ModelViewSet):
 # ─────────────────────────────────────────────
 # OTP EMAIL HELPER
 # ─────────────────────────────────────────────
-def send_otp_email(email, otp_code, purpose="login"):
-    from django.core.mail import send_mail
-    from django.conf import settings
+# def send_otp_email(email, otp_code, purpose="login"):
+#     from django.core.mail import send_mail
+#     from django.conf import settings
 
-    subject = f"Your E-Health System OTP Code for {purpose.capitalize()}"
-    message = (
-        f"Hello,\n\n"
-        f"Your one-time password (OTP) code is: {otp_code}\n\n"
-        f"This code was requested for {purpose} and is valid for 5 minutes.\n"
-        f"If you did not request this, please ignore this email.\n\n"
-        f"Best regards,\nE-Health System Team"
-    )
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@ehealth.com')
-    send_mail(subject, message, from_email, [email], fail_silently=False)
+#     subject = f"Your E-Health System OTP Code for {purpose.capitalize()}"
+#     message = (
+#         f"Hello,\n\n"
+#         f"Your one-time password (OTP) code is: {otp_code}\n\n"
+#         f"This code was requested for {purpose} and is valid for 5 minutes.\n"
+#         f"If you did not request this, please ignore this email.\n\n"
+#         f"Best regards,\nE-Health System Team"
+#     )
+#     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@ehealth.com')
+#     send_mail(subject, message, from_email, [email], fail_silently=False)
 
-    print("\n====================================")
-    print(f"[EMAIL SENT] OTP to {email} ({purpose}): {otp_code}")
-    print("====================================\n")
+#     print("\n====================================")
+#     print(f"[EMAIL SENT] OTP to {email} ({purpose}): {otp_code}")
+#     print("====================================\n")
 
 
 # ─────────────────────────────────────────────
@@ -221,27 +221,38 @@ def login_init(request):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        otp_code = str(random.randint(100000, 999999))
-        PatientOTP.objects.create(user=user, otp_code=otp_code)
-        # try:
-        #     send_otp_email(email_to_send, otp_code, purpose="login")
-        # except Exception as e:
-        #     # Email is optional (the OTP is also shown in the UI), so never
-        #     # let a mail failure block login.
-        #     print(f"[EMAIL ERROR] OTP email failed: {e}")
-        print(f"[DEV] OTP for {email_to_send}: {otp_code}")
+    #     otp_code = str(random.randint(100000, 999999))
+    #     PatientOTP.objects.create(user=user, otp_code=otp_code)
+    #     # try:
+    #     #     send_otp_email(email_to_send, otp_code, purpose="login")
+    #     # except Exception as e:
+    #     #     # Email is optional (the OTP is also shown in the UI), so never
+    #     #     # let a mail failure block login.
+    #     #     print(f"[EMAIL ERROR] OTP email failed: {e}")
+    #     print(f"[DEV] OTP for {email_to_send}: {otp_code}")
 
-        return Response({
-            "status": "OTP_SENT",
-            "user_id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "mobile_number": user.mobile_number,
-               # dev-only; remove in production
-        }, status=status.HTTP_200_OK)
+    #     return Response({
+    #         "status": "OTP_SENT",
+    #         "user_id": user.id,
+    #         "username": user.username,
+    #         "email": user.email,
+    #         "mobile_number": user.mobile_number,
+    #            # dev-only; remove in production
+    #     }, status=status.HTTP_200_OK)
 
-    return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+    # return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+    otp_code = str(random.randint(100000, 999999))
+    PatientOTP.objects.create(user=user, otp_code=otp_code)
 
+    try:
+     send_otp_email(email_to_send, otp_code, purpose="login")
+     print(f"[EMAIL] OTP sent to {email_to_send}")
+    except Exception as e:
+     print(f"[EMAIL ERROR] {e}")
+     return Response(
+        {"detail": f"Failed to send OTP email: {str(e)}"},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -434,10 +445,10 @@ def public_profile(request, token):
     # Try Family Member Profile
     family_member = FamilyMemberProfile.objects.filter(qr_token=token).first()
     if family_member:
-        FamilyMemberProfile.objects.filter(pk=family_member.pk).update(
-            scan_count=F('scan_count') + 1,
-            last_scanned_at=now,
-        )
+        # FamilyMemberProfile.objects.filter(pk=family_member.pk).update(
+        #     scan_count=F('scan_count') + 1,
+        #     last_scanned_at=now,
+        # )
         family_member.refresh_from_db()
         docs = PatientDocument.objects.filter(family_member=family_member)
         return Response({
