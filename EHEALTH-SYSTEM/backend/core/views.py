@@ -220,6 +220,19 @@ def login_init(request):
                 {"detail": "No email address found for this account."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        try:
+         send_otp_email(email_to_send, otp_code, purpose="login")
+        except Exception as e:
+         import traceback
+         traceback.print_exc()
+         print(f"[EMAIL ERROR] {e}")
+
+# Continue even if email fails
+        return Response({
+           "status": "OTP_SENT",
+           "user_id": user.id,
+           "email": user.email,
+        }, status=status.HTTP_200_OK)
 
     #     otp_code = str(random.randint(100000, 999999))
     #     PatientOTP.objects.create(user=user, otp_code=otp_code)
@@ -241,18 +254,7 @@ def login_init(request):
     #     }, status=status.HTTP_200_OK)
 
     # return Response({"detail": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
-    otp_code = str(random.randint(100000, 999999))
-    PatientOTP.objects.create(user=user, otp_code=otp_code)
 
-    try:
-     send_otp_email(email_to_send, otp_code, purpose="login")
-     print(f"[EMAIL] OTP sent to {email_to_send}")
-    except Exception as e:
-     print(f"[EMAIL ERROR] {e}")
-     return Response(
-        {"detail": f"Failed to send OTP email: {str(e)}"},
-        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
