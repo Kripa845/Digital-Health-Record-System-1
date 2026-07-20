@@ -26,12 +26,10 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-cz8s=dxg-wo0%%0eci_2$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]','digital-health-record-system-2.onrender.com','.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'digital-health-record-system-2.onrender.com', '.onrender.com']
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default=None)
-if RENDER_EXTERNAL_HOSTNAME:
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-# Allow any *.onrender.com host so the deployed backend is reachable.
-ALLOWED_HOSTS.append('.onrender.com')
 
 
 # Application definition
@@ -193,7 +191,7 @@ SIMPLE_JWT = {
 }
 
 # CORS — allow the Vite dev server and any localhost port
-CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
@@ -226,7 +224,11 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
 
-# Correctly detect HTTPS when behind Render's proxy.
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID", default="")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET", default="")
+GOOGLE_REFRESH_TOKEN = config("GOOGLE_REFRESH_TOKEN", default="")
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True

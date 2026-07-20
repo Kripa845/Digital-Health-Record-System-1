@@ -16,7 +16,7 @@ services:
     rootDir: EHEALTH-SYSTEM/backend
     plan: free
     buildCommand: ./build.sh
-    startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --timeout 120
     releaseCommand: python manage.py migrate --noinput
     healthCheckPath: /api/health/
     envVars:
@@ -47,6 +47,14 @@ services:
         value: kripashrestha180@gmail.com
       - key: RENDER_EXTERNAL_HOSTNAME
         value: digital-health-record-system-2.onrender.com
+      # Gmail API credentials (bypasses Render's SMTP block — uses HTTPS)
+      # See: EHEALTH-SYSTEM/backend/core/get_refresh_token.py for setup instructions
+      - key: GOOGLE_CLIENT_ID
+        value: ""
+      - key: GOOGLE_CLIENT_SECRET
+        value: ""
+      - key: GOOGLE_REFRESH_TOKEN
+        value: ""
 
   # ── React (Vite) SPA, served as a static site ─────────────────────────────
   - type: web

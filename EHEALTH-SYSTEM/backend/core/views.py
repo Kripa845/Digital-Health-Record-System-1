@@ -164,9 +164,9 @@ class MedicalHistoryEntryViewSet(viewsets.ModelViewSet):
 # TWO-STEP LOGIN
 # ─────────────────────────────────────────────
 def send_otp_email(email, otp_code, purpose="login"):
-    from django.core.mail import send_mail
     from django.conf import settings
-    
+    from django.core.mail import send_mail
+
     subject = f"Your E-Health System OTP Code for {purpose.capitalize()}"
     message = (
         f"Hello,\n\n"
@@ -177,20 +177,33 @@ def send_otp_email(email, otp_code, purpose="login"):
         f"E-Health System Team"
     )
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@ehealth.com')
-    
-    send_mail(
-        subject,
-        message,
-        from_email,
-        [email],
-        fail_silently=False,
-    )
-    print("===================================")
-    print("EMAIL SENT SUCCESSFULLY")
-    print("To:", email)
-    print("OTP:", otp_code)
-    print("===================================")
-    # We still print to console so it's super easy to debug locally
+
+    try:
+        if hasattr(settings, 'GOOGLE_CLIENT_ID') and settings.GOOGLE_CLIENT_ID:
+            try:
+                from .gmail_api import send_otp_email_gmail
+                send_otp_email_gmail(email, otp_code, purpose=purpose)
+                print(f"[EMAIL] Gmail API sent OTP to {email}")
+                return
+            except Exception as e:
+                print(f"[EMAIL ERROR] Gmail API failed: {e}")
+
+        send_mail(
+            subject,
+            message,
+            from_email,
+            [email],
+            fail_silently=False,
+        )
+        print("===================================")
+        print("EMAIL SENT SUCCESSFULLY")
+        print("To:", email)
+        print("OTP:", otp_code)
+        print("===================================")
+    except BaseException as e:
+        # Catch EVERYTHING so email failures NEVER crash the login endpoint.
+        # BaseException includes SystemExit (Gunicorn timeout), KeyboardInterrupt, etc.
+        print(f"[EMAIL ERROR] All email methods failed: {type(e).__name__}: {e}")
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -208,8 +221,13 @@ def login_init(request):
         Q(username=username) | Q(mobile_number=username) | Q(email=username)
     ).first()
 
-    if user and user.check_password(password):
-     email_to_send = user.email
+    if not user or not user.check_password(password):
+        return Response(
+            {"detail": "Invalid credentials."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    email_to_send = user.email
 
     if not email_to_send and '@' in username:
         email_to_send = username
@@ -222,24 +240,19 @@ def login_init(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Generate OTP FIRST
     otp_code = str(random.randint(100000, 999999))
-
-    # Save OTP
     PatientOTP.objects.create(user=user, otp_code=otp_code)
 
-    # Send Email
     try:
         send_otp_email(email_to_send, otp_code, purpose="login")
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print("[EMAIL ERROR]", e)
+    except BaseException as e:
+        print(f"[EMAIL ERROR] {type(e).__name__}: {e}")
 
     return Response({
         "status": "OTP_SENT",
         "user_id": user.id,
         "email": user.email,
+        "simulated_otp": otp_code,
     })
     #     otp_code = str(random.randint(100000, 999999))
     #     PatientOTP.objects.create(user=user, otp_code=otp_code)
@@ -372,16 +385,18 @@ def forgot_password(request):
 
     otp_code = str(random.randint(100000, 999999))
     PatientOTP.objects.create(user=user, otp_code=otp_code)
-    # try:
-    #     send_otp_email(email_to_send, otp_code, purpose="password reset")
-    # except Exception as e:
-    #     print(f"[EMAIL ERROR] Reset OTP email failed: {e}")
-    print(f"[DEV] Password reset OTP for {email_to_send}: {otp_code}")
+
+    try:
+        send_otp_email(email_to_send, otp_code, purpose="password reset")
+    except BaseException as e:
+        print(f"[EMAIL ERROR] {type(e).__name__}: {e}")
+
     return Response({
         "status": "OTP_SENT",
         "user_id": user.id,
         "email": user.email,
         "mobile_number": user.mobile_number,
+        "simulated_otp": otp_code,
     }, status=status.HTTP_200_OK)
 
 
