@@ -54,7 +54,7 @@ def get_chart_data():
     documents_by_month = [0] * 12
 
     try:
-        from .models import PatientProfile, PatientDocument, MedicalHistoryEntry
+        from .models import PatientProfile, PatientDocument, MedicalHistoryEntry,FamilyMemberProfile
 
         # Registrations by month — truncate date_joined to month, then group
         regs = (
