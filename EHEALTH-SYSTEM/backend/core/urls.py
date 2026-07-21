@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import (
+from apps.accounts.views import (
     CustomTokenObtainPairView,
     RegisterPatientView,
     PatientProfileViewSet,
@@ -26,7 +26,6 @@ router.register(r'family', FamilyMemberProfileViewSet, basename='family-member')
 router.register(r'documents', PatientDocumentViewSet, basename='patient-document')
 
 urlpatterns = [
-    # Auth
     path('auth/register/patient/', RegisterPatientView.as_view(), name='register-patient'),
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token-obtain-pair'),
     path('auth/login-init/', login_init, name='login-init'),
@@ -35,16 +34,9 @@ urlpatterns = [
     path('auth/forgot-password/', forgot_password, name='forgot-password'),
     path('auth/reset-password/', reset_password, name='reset-password'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
-
-    # Public health check (no auth) — used by Render health checks
     path('health/', health_check, name='health-check'),
-
-    # Public QR scan (no auth)
     path('public-profile/<uuid:token>/', public_profile, name='public-profile'),
-      path('qr-token/<str:profile_type>/<int:profile_id>/', get_qr_token, name='get-qr-token'),
-    
-    # Alternative: Get QR token for current user's patient profile
+    path('qr-token/<str:profile_type>/<int:profile_id>/', get_qr_token, name='get-qr-token'),
     path('qr-token/me/', get_qr_token, name='get-qr-token-me'),
-    # ViewSet routes
     path('', include(router.urls)),
 ]

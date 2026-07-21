@@ -45,6 +45,7 @@ if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,8 +54,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'apps.accounts',
+    'apps.patients',
+    'apps.family',
+    'apps.medical_history',
+    'apps.documents',
+    'apps.qr',
+    'apps.otp',
+    'apps.dashboard',
+    'apps.common',
     'core',
 ]
+
+AUTH_USER_MODEL = 'core.User'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -73,7 +85,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -154,13 +166,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
@@ -242,3 +253,167 @@ GOOGLE_REFRESH_TOKEN = config("GOOGLE_REFRESH_TOKEN", default="")
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Jazzmin — modern Django Admin UI
+# ──────────────────────────────────────────────────────────────────────────────
+JAZZMIN_SETTINGS = {
+    "site_title": "Mero Care Admin",
+    "site_header": "Mero Care",
+    "site_brand": "Mero Care Hospital System",
+    "welcome_sign": "Welcome to Mero Care Administration",
+    "copyright": "Mero Care Hospital System",
+    "logo": "img/logo.png",
+    "login_logo": "img/logo.png",
+    "login_logo_dark": "img/logo.png",
+    "site_logo": "img/logo.png",
+    "site_icon": "img/logo.png",
+    "site_logo_classes": "img-circle",
+    "show_ui_builder": False,
+    "language_chooser": False,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": [
+        "core",
+    ],
+    "custom_links": {
+        "core": [
+            {
+                "name": "Dashboard Overview",
+                "url": "/admin/",
+                "icon": "fas fa-tachometer-alt",
+                "permissions": ["auth.view_user"],
+            },
+        ],
+    },
+    "topmenu_links": [
+        {"name": "Dashboard", "url": "/admin/", "icon": "fas fa-tachometer-alt"},
+        {"name": "View Site", "url": "/", "icon": "fas fa-external-link-alt", "new_window": True},
+    ],
+    "usermenu_links": [
+        {"name": "Profile", "url": "/admin/auth/user/", "icon": "fas fa-user"},
+    ],
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "theme": "flatly",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success",
+    },
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.User": "fas fa-user-md",
+        "auth.Group": "fas fa-users",
+        "core.User": "fas fa-user-md",
+        "core.PatientProfile": "fas fa-hospital-user",
+        "core.FamilyMemberProfile": "fas fa-user-friends",
+        "core.MedicalHistoryEntry": "fas fa-notes-medical",
+        "core.PatientDocument": "fas fa-file-medical",
+        "core.PatientOTP": "fas fa-key",
+    },
+    "dashboard": [
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.filter(role="PATIENT").count(),
+            "name": "Total Patients",
+            "icon": "fas fa-hospital-user",
+            "color": "primary",
+            "link": "/admin/core/patientprofile/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["FamilyMemberProfile"]).FamilyMemberProfile.objects.count(),
+            "name": "Total Family Members",
+            "icon": "fas fa-user-friends",
+            "color": "info",
+            "link": "/admin/core/familymemberprofile/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["MedicalHistoryEntry"]).MedicalHistoryEntry.objects.count(),
+            "name": "Medical Records",
+            "icon": "fas fa-notes-medical",
+            "color": "success",
+            "link": "/admin/core/medicalhistoryentry/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["PatientDocument"]).PatientDocument.objects.count(),
+            "name": "Documents",
+            "icon": "fas fa-file-medical",
+            "color": "warning",
+            "link": "/admin/core/patientdocument/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.filter(qr_token__isnull=False).count(),
+            "name": "QR Generated",
+            "icon": "fas fa-qrcode",
+            "color": "secondary",
+            "link": "/admin/core/patientprofile/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.aggregate(total=models.Sum("scan_count"))["total"] or 0,
+            "name": "QR Scans",
+            "icon": "fas fa-eye",
+            "color": "pink",
+            "link": "/admin/core/patientprofile/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.filter(is_profile_setup=True).count(),
+            "name": "Active Patients",
+            "icon": "fas fa-user-check",
+            "color": "teal",
+            "link": "/admin/core/patientprofile/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.filter(
+                user__date_joined__month=__import__("django.utils.timezone").timezone.now().month,
+                user__date_joined__year=__import__("django.utils.timezone").timezone.now().year,
+            ).count(),
+            "name": "New This Month",
+            "icon": "fas fa-user-plus",
+            "color": "navy",
+            "link": "/admin/core/patientprofile/",
+        },
+    ],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": True,
+    "brand_small_text": False,
+    "brand_colour": "navbar-teal",
+    "accent": "accent-teal",
+    "navbar": "navbar-teal navbar-dark",
+    "sidebar": "sidebar-dark-teal",
+    "sidebar_fixed": True,
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "flatly",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success",
+    },
+    "actions_sticky_top": True,
+}

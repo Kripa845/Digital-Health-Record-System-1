@@ -5,7 +5,7 @@ from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('core.urls')),
+    path('api/', include('apps.accounts.urls')),
 ]
 
 # Serve media files in both development and production on Render
