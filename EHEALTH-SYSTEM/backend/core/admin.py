@@ -690,6 +690,9 @@ from .dashboard_data import get_dashboard_stats, get_chart_data
 _original_index = django_admin.site.index
 
 def _patched_index(request, extra_context=None):
+    if not request.user or not request.user.is_active or not request.user.is_staff:
+        return django_admin.site.login(request)
+
     stats = get_dashboard_stats()
     chart_data = get_chart_data()
     extra_context = extra_context or {}
