@@ -13,6 +13,16 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from decouple import config
 
+
+def safe_bool(key, default=False):
+    val = config(key, default=None)
+    if val is None:
+        return default
+    if isinstance(val, bool):
+        return val
+    return str(val).lower() in ('true', '1', 'yes', 'on')
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +34,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-cz8s=dxg-wo0%%0eci_2$3sa1lq0vlp5s_!q!+4!6%@_c%)&-)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = safe_bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'digital-health-record-system-2.onrender.com', '.onrender.com']
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default=None)
@@ -95,7 +105,7 @@ import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 DATABASE_URL = config('DATABASE_URL', default=None)
-USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
+USE_SQLITE = safe_bool('USE_SQLITE', default=False)
 if DATABASE_URL and not USE_SQLITE:
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600),
@@ -191,7 +201,7 @@ SIMPLE_JWT = {
 }
 
 # CORS — allow the Vite dev server and any localhost port
-CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
+CORS_ALLOW_ALL_ORIGINS = safe_bool('CORS_ALLOW_ALL_ORIGINS', default=False)
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
@@ -222,7 +232,7 @@ EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_USE_TLS = safe_bool("EMAIL_USE_TLS", default=True)
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
 EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
 
