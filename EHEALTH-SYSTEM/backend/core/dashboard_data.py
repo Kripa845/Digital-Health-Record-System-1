@@ -28,8 +28,10 @@ def get_dashboard_stats():
         stats["total_family_members"] = FamilyMemberProfile.objects.count()
         stats["total_medical_records"] = MedicalHistoryEntry.objects.count()
         stats["total_documents"] = PatientDocument.objects.count()
-        stats["total_qr_generated"] = PatientProfile.objects.filter(qr_token__isnull=False).count()
-        stats["total_qr_scans"] = PatientProfile.objects.aggregate(total=Sum("scan_count"))["total"] or 0
+        stats["total_qr_generated"] = PatientProfile.objects.filter(qr_token__isnull=False).count() + FamilyMemberProfile.objects.filter(qr_token__isnull=False).count()
+        patient_scans = PatientProfile.objects.aggregate(total=Sum("scan_count"))["total"] or 0
+        family_scans = FamilyMemberProfile.objects.aggregate(total=Sum("scan_count"))["total"] or 0
+        stats["total_qr_scans"] = patient_scans + family_scans
         stats["active_patients"] = PatientProfile.objects.filter(is_profile_setup=True).count()
         stats["new_patients_this_month"] = PatientProfile.objects.filter(
             user__date_joined__gte=month_start
@@ -70,8 +72,8 @@ def get_chart_data():
                 if 0 <= month_idx < 12:
                     registrations_by_month[11 - month_idx] = r["count"]
 
-        # QR scans by month
-        scans = (
+        # QR scans by month (patient + family)
+        patient_scans = (
             PatientProfile.objects.filter(
                 last_scanned_at__gte=today - timedelta(days=365)
             )
@@ -80,11 +82,26 @@ def get_chart_data():
             .annotate(count=Sum("scan_count"))
             .order_by("month")
         )
-        for s in scans:
+        for s in patient_scans:
             if s["month"]:
                 month_idx = (s["month"].year - today.year) * 12 + (s["month"].month - today.month)
                 if 0 <= month_idx < 12:
-                    qr_scans_by_month[11 - month_idx] = s["count"] or 0
+                    qr_scans_by_month[11 - month_idx] += s["count"] or 0
+
+        family_scans = (
+            FamilyMemberProfile.objects.filter(
+                last_scanned_at__gte=today - timedelta(days=365)
+            )
+            .annotate(month=TruncMonth("last_scanned_at"))
+            .values("month")
+            .annotate(count=Sum("scan_count"))
+            .order_by("month")
+        )
+        for s in family_scans:
+            if s["month"]:
+                month_idx = (s["month"].year - today.year) * 12 + (s["month"].month - today.month)
+                if 0 <= month_idx < 12:
+                    qr_scans_by_month[11 - month_idx] += s["count"] or 0
 
         # Documents by month
         docs = (

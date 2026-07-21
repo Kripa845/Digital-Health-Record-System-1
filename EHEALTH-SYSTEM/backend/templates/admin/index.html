@@ -27,6 +27,11 @@
 
     .page-header {
         margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
     .page-header h1 {
         font-size: 1.5rem;
@@ -39,49 +44,72 @@
         margin: 0.25rem 0 0;
         font-size: 0.9rem;
     }
-
-    .quick-links {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-    .quick-link {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1rem 0.75rem;
-        text-align: center;
-        text-decoration: none;
-        color: var(--text);
-        transition: all 0.2s ease;
-        box-shadow: var(--shadow);
-        display: flex;
-        flex-direction: column;
+    .logout-btn {
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        background: #dc3545;
+        color: #fff;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow);
     }
-    .quick-link:hover {
-        transform: translateY(-3px);
+    .logout-btn:hover {
+        background: #c82333;
+        transform: translateY(-2px);
         box-shadow: var(--shadow-hover);
-        border-color: rgba(0,137,123,0.3);
-        color: var(--primary);
+        color: #fff;
     }
-    .quick-link .ql-icon {
-        font-size: 1.5rem;
-        width: 44px;
-        height: 44px;
+
+    .sidebar-nav {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        margin-bottom: 1.5rem;
+    }
+    .sidebar-nav h3 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin: 0 0 0.75rem;
+        font-weight: 700;
+    }
+    .sidebar-nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .sidebar-nav li {
+        margin-bottom: 0.25rem;
+    }
+    .sidebar-nav a {
         display: flex;
         align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        background: rgba(0,137,123,0.08);
+        gap: 0.75rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.15s ease;
+    }
+    .sidebar-nav a:hover {
+        background: rgba(0,137,123,0.06);
         color: var(--primary);
     }
-    .quick-link .ql-name {
-        font-weight: 600;
-        font-size: 0.8rem;
-        line-height: 1.2;
+    .sidebar-nav a i {
+        width: 20px;
+        text-align: center;
+        color: var(--primary);
+        font-size: 0.95rem;
     }
 
     .dashboard-stats {
@@ -177,10 +205,6 @@
         .page-header h1 {
             font-size: 1.75rem;
         }
-        .quick-links {
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-        }
         .dashboard-stats {
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1rem;
@@ -204,6 +228,10 @@
         .dashboard-wrap {
             padding: 0.75rem;
         }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
         .stat-card {
             padding: 1rem 0.75rem;
         }
@@ -220,17 +248,27 @@
 {% block content %}
 <div class="dashboard-wrap">
     <div class="page-header">
-        <h1>Hospital Dashboard</h1>
-        <p>Welcome to Mero Care Administration</p>
+        <div>
+            <h1>Hospital Dashboard</h1>
+            <p>Welcome to Mero Care Administration</p>
+        </div>
+        <a href="{% url 'admin:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </div>
 
-    <div class="quick-links">
-        {% for link in quick_links %}
-        <a href="{{ link.url }}" class="quick-link">
-            <div class="ql-icon"><i class="{{ link.icon }}"></i></div>
-            <div class="ql-name">{{ link.name }}</div>
-        </a>
-        {% endfor %}
+    <div class="sidebar-nav">
+        <h3>Quick Access</h3>
+        <ul>
+            {% for link in quick_links %}
+            <li>
+                <a href="{{ link.url }}">
+                    <i class="{{ link.icon }}"></i>
+                    {{ link.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
 
     <div class="dashboard-stats">
@@ -259,17 +297,17 @@
             <div class="stat-value">{{ stats.total_qr_generated }}</div>
             <div class="stat-label">QR Generated</div>
         </a>
-        <a href="/admin/core/patientprofile/" class="stat-card pink">
+        <a href="/admin/core/patientprofile/" class="stat-card teal">
             <div class="stat-icon"><i class="fas fa-eye"></i></div>
             <div class="stat-value">{{ stats.total_qr_scans }}</div>
             <div class="stat-label">QR Scans</div>
         </a>
-        <a href="/admin/core/patientprofile/" class="stat-card teal">
+        <a href="/admin/core/patientprofile/" class="stat-card navy">
             <div class="stat-icon"><i class="fas fa-user-check"></i></div>
             <div class="stat-value">{{ stats.active_patients }}</div>
             <div class="stat-label">Active Patients</div>
         </a>
-        <a href="/admin/core/patientprofile/" class="stat-card navy">
+        <a href="/admin/core/patientprofile/" class="stat-card pink">
             <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
             <div class="stat-value">{{ stats.new_patients_this_month }}</div>
             <div class="stat-label">New This Month</div>

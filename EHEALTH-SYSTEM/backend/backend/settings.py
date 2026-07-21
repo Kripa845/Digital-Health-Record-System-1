@@ -277,16 +277,7 @@ JAZZMIN_SETTINGS = {
     "order_with_respect_to": [
         "core",
     ],
-    "custom_links": {
-        "core": [
-            {
-                "name": "Dashboard Overview",
-                "url": "/admin/",
-                "icon": "fas fa-tachometer-alt",
-                "permissions": ["auth.view_user"],
-            },
-        ],
-    },
+    "custom_links": {},
     "topmenu_links": [
         {"name": "Dashboard", "url": "/admin/", "icon": "fas fa-tachometer-alt"},
         {"name": "View Site", "url": "/", "icon": "fas fa-external-link-alt", "new_window": True},
@@ -361,7 +352,11 @@ JAZZMIN_SETTINGS = {
         },
         {
             "type": "stat",
-            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.aggregate(total=models.Sum("scan_count"))["total"] or 0,
+            "value": lambda request: (
+                __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.aggregate(total=models.Sum("scan_count"))["total"] or 0
+            ) + (
+                __import__("core.models", fromlist=["FamilyMemberProfile"]).FamilyMemberProfile.objects.aggregate(total=models.Sum("scan_count"))["total"] or 0
+            ),
             "name": "QR Scans",
             "icon": "fas fa-eye",
             "color": "pink",
@@ -416,4 +411,5 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-outline-success",
     },
     "actions_sticky_top": True,
+    "sidebar_nav_width": "280px",
 }

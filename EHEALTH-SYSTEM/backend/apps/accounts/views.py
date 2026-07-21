@@ -414,6 +414,10 @@ def public_profile(request, token):
 
     family_member = FamilyMemberProfile.objects.filter(qr_token=token).first()
     if family_member:
+        FamilyMemberProfile.objects.filter(pk=family_member.pk).update(
+            scan_count=F('scan_count') + 1,
+            last_scanned_at=now,
+        )
         family_member.refresh_from_db()
         docs = PatientDocument.objects.filter(family_member=family_member)
         return Response({
