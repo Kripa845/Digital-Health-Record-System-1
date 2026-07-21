@@ -258,11 +258,11 @@ USE_X_FORWARDED_HOST = True
 # Jazzmin — modern Django Admin UI
 # ──────────────────────────────────────────────────────────────────────────────
 JAZZMIN_SETTINGS = {
-    "site_title": "Mero Care Admin",
-    "site_header": "Mero Care",
-    "site_brand": "Mero Care Hospital System",
-    "welcome_sign": "Welcome to Mero Care Administration",
-    "copyright": "Mero Care Hospital System",
+    "site_title": "MeroCare",
+    "site_header": "MeroCare",
+    "site_brand": "MeroCare",
+    "welcome_sign": "MeroCare Administration",
+    "copyright": "MeroCare Hospital System",
     "logo": "img/logo.png",
     "login_logo": "img/logo.png",
     "login_logo_dark": "img/logo.png",
@@ -271,7 +271,6 @@ JAZZMIN_SETTINGS = {
     "site_logo_classes": "img-circle",
     "show_ui_builder": False,
     "language_chooser": False,
-    "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
     "order_with_respect_to": [
@@ -280,10 +279,10 @@ JAZZMIN_SETTINGS = {
     "custom_links": {},
     "topmenu_links": [
         {"name": "Dashboard", "url": "/admin/", "icon": "fas fa-tachometer-alt"},
-        {"name": "View Site", "url": "/", "icon": "fas fa-external-link-alt", "new_window": True},
     ],
     "usermenu_links": [
         {"name": "Profile", "url": "/admin/auth/user/", "icon": "fas fa-user"},
+        {"name": "Logout", "url": "/admin/logout/", "icon": "fas fa-sign-out-alt"},
     ],
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
@@ -387,11 +386,11 @@ JAZZMIN_SETTINGS = {
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
     "footer_small_text": False,
-    "body_small_text": True,
+    "body_small_text": False,
     "brand_small_text": False,
     "brand_colour": "navbar-teal",
     "accent": "accent-teal",
-    "navbar": "navbar-teal navbar-dark",
+    "navbar": "navbar-light navbar-white border-bottom",
     "sidebar": "sidebar-dark-teal",
     "sidebar_fixed": True,
     "sidebar_nav_small_text": False,
@@ -403,13 +402,17 @@ JAZZMIN_UI_TWEAKS = {
     "theme": "flatly",
     "dark_mode_theme": "darkly",
     "button_classes": {
-        "primary": "btn-outline-primary",
+        "primary": "btn-primary",
         "secondary": "btn-outline-secondary",
         "info": "btn-outline-info",
         "warning": "btn-outline-warning",
-        "danger": "btn-outline-danger",
+        "danger": "btn-danger",
         "success": "btn-outline-success",
     },
     "actions_sticky_top": True,
-    "sidebar_nav_width": "280px",
+    "sidebar_nav_width": "260px",
+    "navbar_fixed_top": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "side_menu_accordion": False,
 }
