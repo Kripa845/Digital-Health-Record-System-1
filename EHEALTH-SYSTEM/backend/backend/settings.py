@@ -328,14 +328,6 @@ JAZZMIN_SETTINGS = {
         },
         {
             "type": "stat",
-            "value": lambda request: __import__("core.models", fromlist=["MedicalHistoryEntry"]).MedicalHistoryEntry.objects.count(),
-            "name": "Medical Records",
-            "icon": "fas fa-notes-medical",
-            "color": "success",
-            "link": "/admin/core/medicalhistoryentry/",
-        },
-        {
-            "type": "stat",
             "value": lambda request: __import__("core.models", fromlist=["PatientDocument"]).PatientDocument.objects.count(),
             "name": "Documents",
             "icon": "fas fa-file-medical",

@@ -341,10 +341,6 @@
             <h3>Documents Uploaded by Month</h3>
             <canvas id="documentsChart"></canvas>
         </div>
-        <div class="chart-container">
-            <h3>Medical Record Categories</h3>
-            <canvas id="categoriesChart"></canvas>
-        </div>
     </div>
 </div>
 
@@ -482,33 +478,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 scales: {
                     y: { beginAtZero: true, ticks: { stepSize: 1 } },
                     x: { ticks: { maxRotation: 45, minRotation: 45 } }
-                }
-            }
-        });
-    }
-
-    const catCtx = document.getElementById('categoriesChart');
-    if (catCtx) {
-        new Chart(catCtx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(chartData.categories),
-                datasets: [{
-                    label: 'Records',
-                    data: Object.values(chartData.categories),
-                    backgroundColor: 'rgba(23, 162, 184, 0.8)',
-                    borderColor: '#17a2b8',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { beginAtZero: true, ticks: { stepSize: 1 } }
                 }
             }
         });

@@ -14,7 +14,6 @@ def get_dashboard_stats():
     stats = {
         "total_patients": User.objects.filter(role="PATIENT").count(),
         "total_family_members": 0,
-        "total_medical_records": 0,
         "total_documents": 0,
         "total_qr_generated": 0,
         "total_qr_scans": 0,
@@ -23,10 +22,9 @@ def get_dashboard_stats():
     }
 
     try:
-        from .models import PatientProfile, FamilyMemberProfile, MedicalHistoryEntry, PatientDocument
+        from .models import PatientProfile, FamilyMemberProfile, PatientDocument
 
         stats["total_family_members"] = FamilyMemberProfile.objects.count()
-        stats["total_medical_records"] = MedicalHistoryEntry.objects.count()
         stats["total_documents"] = PatientDocument.objects.count()
         stats["total_qr_generated"] = PatientProfile.objects.filter(qr_token__isnull=False).count() + FamilyMemberProfile.objects.filter(qr_token__isnull=False).count()
         patient_scans = PatientProfile.objects.aggregate(total=Sum("scan_count"))["total"] or 0
@@ -54,7 +52,7 @@ def get_chart_data():
     documents_by_month = [0] * 12
 
     try:
-        from .models import PatientProfile, PatientDocument, MedicalHistoryEntry,FamilyMemberProfile
+        from .models import PatientProfile, PatientDocument, FamilyMemberProfile
 
         # Registrations by month — truncate date_joined to month, then group
         regs = (
@@ -72,14 +70,14 @@ def get_chart_data():
                 if 0 <= month_idx < 12:
                     registrations_by_month[11 - month_idx] = r["count"]
 
-        # QR scans by month (patient + family)
+        # QR scans by month (unique profiles last scanned in each month)
         patient_scans = (
             PatientProfile.objects.filter(
                 last_scanned_at__gte=today - timedelta(days=365)
             )
             .annotate(month=TruncMonth("last_scanned_at"))
             .values("month")
-            .annotate(count=Sum("scan_count"))
+            .annotate(count=Count("id"))
             .order_by("month")
         )
         for s in patient_scans:
@@ -94,7 +92,7 @@ def get_chart_data():
             )
             .annotate(month=TruncMonth("last_scanned_at"))
             .values("month")
-            .annotate(count=Sum("scan_count"))
+            .annotate(count=Count("id"))
             .order_by("month")
         )
         for s in family_scans:
@@ -144,15 +142,6 @@ def get_chart_data():
     except ImportError:
         pass
 
-    category_data = {}
-    try:
-        from .models import MedicalHistoryEntry
-        cat_qs = MedicalHistoryEntry.objects.values("category").annotate(count=Count("id"))
-        for item in cat_qs:
-            category_data[item["category"]] = item["count"]
-    except ImportError:
-        pass
-
     return {
         "months": months,
         "registrations": registrations_by_month,
@@ -160,5 +149,4 @@ def get_chart_data():
         "documents": documents_by_month,
         "gender": gender_data,
         "blood_groups": blood_group_data,
-        "categories": category_data,
     }

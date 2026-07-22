@@ -327,6 +327,19 @@ class PatientProfileAdmin(admin.ModelAdmin):
         return "No QR token"
     qr_code_preview.short_description = "QR Preview"
 
+    def delete_model(self, request, obj):
+        user = obj.user
+        super().delete_model(request, obj)
+        if user and user.pk:
+            user.delete()
+
+    def delete_queryset(self, request, queryset):
+        users = [obj.user for obj in queryset if obj.user_id]
+        super().delete_queryset(request, queryset)
+        for user in users:
+            if user and user.pk:
+                user.delete()
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
             'user',
@@ -710,7 +723,6 @@ def _patched_index(request, extra_context=None):
 
     quick_links = [
         {"name": "Manage Patients", "url": "/admin/core/patientprofile/", "icon": "fas fa-hospital-user", "color": "primary"},
-        {"name": "Medical Records", "url": "/admin/core/medicalhistoryentry/", "icon": "fas fa-notes-medical", "color": "success"},
         {"name": "Documents", "url": "/admin/core/patientdocument/", "icon": "fas fa-file-medical", "color": "warning"},
         {"name": "Family Members", "url": "/admin/core/familymemberprofile/", "icon": "fas fa-user-friends", "color": "info"},
         {"name": "QR Analytics", "url": "/admin/core/patientprofile/", "icon": "fas fa-qrcode", "color": "secondary"},
