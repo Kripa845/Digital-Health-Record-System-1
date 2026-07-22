@@ -710,7 +710,7 @@ admin.site.register(ContactMessage, ContactMessageAdmin)
 
 # Monkey-patch the admin index to inject dashboard data
 from django.contrib import admin as django_admin
-from .dashboard_data import get_dashboard_stats, get_chart_data
+from .dashboard_data import get_dashboard_stats, get_chart_data, get_recent_activity
 
 _original_index = django_admin.site.index
 
