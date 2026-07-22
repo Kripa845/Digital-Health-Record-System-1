@@ -33,7 +33,7 @@ def get_dashboard_stats():
     try:
         from .models import PatientProfile, FamilyMemberProfile, PatientDocument, MedicalHistoryEntry
 
-        stats["total_patients"] = User.objects.filter(role="PATIENT").count()
+        stats["total_patients"] = PatientProfile.objects.count()
         stats["total_admins"] = User.objects.filter(role="ADMIN").count()
         stats["total_family_members"] = FamilyMemberProfile.objects.count()
         stats["total_documents"] = PatientDocument.objects.count()

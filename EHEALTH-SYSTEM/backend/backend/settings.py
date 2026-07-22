@@ -320,7 +320,7 @@ JAZZMIN_SETTINGS = {
         },
         {
             "type": "stat",
-            "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.filter(role="PATIENT").count(),
+            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.count(),
             "name": "Total Patients",
             "icon": "fas fa-hospital-user",
             "color": "info",
