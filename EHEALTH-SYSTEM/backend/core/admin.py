@@ -164,6 +164,7 @@ class UserAdmin(DjangoUserAdmin):
         'role',
         'is_staff',
         'is_active',
+        'is_superuser',
         'date_joined',
         'last_login',
     )
@@ -373,6 +374,8 @@ class FamilyMemberProfileAdmin(admin.ModelAdmin):
         'relationship',
         'gender',
         'blood_group',
+        'patient__healthcare_id',
+        'patient__user__is_active',
         'created_at',
     )
     search_fields = (
@@ -648,6 +651,8 @@ class PatientOTPAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'is_used',
+        'user__role',
+        'user__is_active',
         'created_at',
     )
     search_fields = (
