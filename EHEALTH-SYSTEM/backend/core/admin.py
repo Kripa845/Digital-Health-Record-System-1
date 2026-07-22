@@ -16,6 +16,111 @@ from .models import User, PatientProfile, FamilyMemberProfile, PatientDocument, 
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Custom dynamic filters populated from the database
+# ──────────────────────────────────────────────────────────────────────────────
+
+class BloodGroupFilter(admin.SimpleListFilter):
+    title = "blood group"
+    parameter_name = "blood_group"
+
+    def lookups(self, request, model_admin):
+        return [(bg, bg) for bg in PatientProfile.objects.exclude(blood_group="").exclude(blood_group__isnull=True).values_list("blood_group", flat=True).distinct().order_by("blood_group")]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(blood_group=self.value())
+        return queryset
+
+
+class GenderFilter(admin.SimpleListFilter):
+    title = "gender"
+    parameter_name = "gender"
+
+    def lookups(self, request, model_admin):
+        return [(g, g) for g in PatientProfile.objects.exclude(gender="").exclude(gender__isnull=True).values_list("gender", flat=True).distinct().order_by("gender")]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(gender__iexact=self.value())
+        return queryset
+
+
+class RelationshipFilter(admin.SimpleListFilter):
+    title = "relationship"
+    parameter_name = "relationship"
+
+    def lookups(self, request, model_admin):
+        return [(r, r) for r in FamilyMemberProfile.objects.exclude(relationship="").values_list("relationship", flat=True).distinct().order_by("relationship")]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(relationship=self.value())
+        return queryset
+
+
+class DocumentTypeFilter(admin.SimpleListFilter):
+    title = "document type"
+    parameter_name = "file_type"
+
+    def lookups(self, request, model_admin):
+        return [(t, t) for t in PatientDocument.objects.exclude(file_type="").exclude(file_type__isnull=True).values_list("file_type", flat=True).distinct().order_by("file_type")]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(file_type__iexact=self.value())
+        return queryset
+
+
+class MedicalCategoryFilter(admin.SimpleListFilter):
+    title = "category"
+    parameter_name = "category"
+
+    def lookups(self, request, model_admin):
+        return [(c, c) for c in MedicalHistoryEntry.objects.exclude(category="").values_list("category", flat=True).distinct().order_by("category")]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(category__iexact=self.value())
+        return queryset
+
+
+class OwnerTypeFilter(admin.SimpleListFilter):
+    title = "owner type"
+    parameter_name = "owner_type"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("main", "Main Patient"),
+            ("family", "Family Member"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == "main":
+            return queryset.filter(family_member__isnull=True)
+        if self.value() == "family":
+            return queryset.filter(family_member__isnull=False)
+        return queryset
+
+
+class QRStatusFilter(admin.SimpleListFilter):
+    title = "qr status"
+    parameter_name = "qr_status"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("generated", "Generated"),
+            ("not_generated", "Not Generated"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == "generated":
+            return queryset.filter(qr_token__isnull=False)
+        if self.value() == "not_generated":
+            return queryset.filter(qr_token__isnull=True)
+        return queryset
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Inline Models
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -222,11 +327,12 @@ class PatientProfileAdmin(admin.ModelAdmin):
         'registration_date',
     )
     list_filter = (
-        'gender',
-        'blood_group',
+        GenderFilter,
+        BloodGroupFilter,
         'is_profile_setup',
-        'user__date_joined',
+        'user__role',
         'user__is_active',
+        'user__date_joined',
     )
     search_fields = (
         'healthcare_id',
@@ -371,11 +477,12 @@ class FamilyMemberProfileAdmin(admin.ModelAdmin):
         'created_at',
     )
     list_filter = (
-        'relationship',
-        'gender',
-        'blood_group',
+        RelationshipFilter,
+        GenderFilter,
+        BloodGroupFilter,
         'patient__healthcare_id',
         'patient__user__is_active',
+        QRStatusFilter,
         'created_at',
     )
     search_fields = (
@@ -484,8 +591,9 @@ class MedicalHistoryEntryAdmin(admin.ModelAdmin):
         'date_recorded',
     )
     list_filter = (
-        'category',
+        MedicalCategoryFilter,
         'date_recorded',
+        'patient__healthcare_id',
     )
     search_fields = (
         'title',
@@ -543,8 +651,11 @@ class PatientDocumentAdmin(admin.ModelAdmin):
         'uploaded_at',
     )
     list_filter = (
-        'file_type',
+        DocumentTypeFilter,
+        OwnerTypeFilter,
         'uploaded_at',
+        'patient__healthcare_id',
+        'family_member',
     )
     search_fields = (
         'title',
