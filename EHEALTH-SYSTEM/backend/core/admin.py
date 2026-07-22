@@ -710,7 +710,7 @@ admin.site.register(ContactMessage, ContactMessageAdmin)
 
 # Monkey-patch the admin index to inject dashboard data
 from django.contrib import admin as django_admin
-from .dashboard_data import get_dashboard_stats, get_chart_data, get_recent_activity
+from .dashboard_data import get_dashboard_stats, get_chart_data, get_recent_activity, get_filter_options
 
 _original_index = django_admin.site.index
 
@@ -721,10 +721,12 @@ def _patched_index(request, extra_context=None):
     stats = get_dashboard_stats()
     chart_data = get_chart_data()
     recent_activity = get_recent_activity()
+    filter_options = get_filter_options()
     extra_context = extra_context or {}
     extra_context['stats'] = stats
     extra_context['chart_data'] = chart_data
     extra_context['recent_activity'] = recent_activity
+    extra_context['filter_options'] = filter_options
 
     quick_links = [
         {"name": "Manage Patients", "url": "/admin/core/patientprofile/", "icon": "fas fa-hospital-user", "color": "primary"},
