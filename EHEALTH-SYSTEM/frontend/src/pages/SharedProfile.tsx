@@ -187,7 +187,7 @@ export const SharedProfile: React.FC = () => {
             color: '#00897b',
             fontWeight: 600
           }}>
-            {type === 'PATIENT' ? 'Primary Profile' : `Sub-Profile (${profile.relationship})`}
+            {type === 'PATIENT' ? 'Primary Profile' : 'Profile'}
           </span>
           <span style={{
             fontSize: '0.8rem',
@@ -221,11 +221,7 @@ export const SharedProfile: React.FC = () => {
           </div>
           <div>
             <h1 style={{ fontSize: '2rem', marginBottom: '0.3rem', color: '#1a3a3a' }}>{fullName}</h1>
-            {type === 'PATIENT' ? (
-              <span style={{ fontFamily: 'var(--font-display)', color: '#00897b', fontWeight: 600 }}>ID: {profile.healthcare_id}</span>
-            ) : (
-              <span style={{ color: '#43a047', fontWeight: 600 }}>{profile.relationship}</span>
-            )}
+            <span style={{ fontFamily: 'var(--font-display)', color: '#00897b', fontWeight: 600 }}>ID: {profile.healthcare_id}</span>
           </div>
 
           <div style={{ 

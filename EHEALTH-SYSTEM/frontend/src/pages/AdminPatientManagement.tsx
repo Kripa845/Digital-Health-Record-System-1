@@ -21,7 +21,7 @@ interface PatientRow {
   user: { first_name: string; last_name: string; email: string; username: string; contact_number?: string };
 }
 
-const emptyForm: Omit<PatientRow, 'id' | 'healthcare_id'> & { username: string; contact: string } = {
+const emptyForm: Omit<PatientRow, 'id' | 'healthcare_id'> = {
   user: { first_name: '', last_name: '', email: '', username: '', contact_number: '' },
   date_of_birth: '',
   gender: '',
