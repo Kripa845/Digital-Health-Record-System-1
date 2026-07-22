@@ -17,6 +17,7 @@ from apps.accounts.views import (
     generate_qr_code,
     get_qr_token,
     send_otp_email,
+    contact_message_create,
 )
 
 __all__ = [
@@ -37,4 +38,5 @@ __all__ = [
     'generate_qr_code',
     'get_qr_token',
     'send_otp_email',
+    'contact_message_create',
 ]

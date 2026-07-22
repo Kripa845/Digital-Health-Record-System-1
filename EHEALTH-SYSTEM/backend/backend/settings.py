@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'apps.otp',
     'apps.dashboard',
     'apps.common',
+    'apps.contact',
     'core',
 ]
 

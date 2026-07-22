@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, HeartHandshake, QrCode, FilePlus2, UserCheck, Stethoscope, Mail, Phone, MapPin, Send, Fullscreen } from 'lucide-react';
+import { ShieldCheck, HeartHandshake, QrCode, FilePlus2, UserCheck, Stethoscope, Mail, Phone, MapPin, Send, Fullscreen, Loader2 } from 'lucide-react';
+import { buildUrl, ENDPOINTS } from '../config/api';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();
@@ -9,15 +10,51 @@ export const Home: React.FC = () => {
   const [contactEmail, setContactEmail] = useState('');
   const [contactMessage, setContactMessage] = useState('');
   const [contactSuccess, setContactSuccess] = useState(false);
+  const [contactError, setContactError] = useState('');
+  const [contactLoading, setContactLoading] = useState(false);
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (contactName && contactEmail && contactMessage) {
+    setContactError('');
+    if (!contactName || !contactEmail || !contactMessage) {
+      setContactError('Please fill in all fields.');
+      return;
+    }
+
+    setContactLoading(true);
+    try {
+      const response = await fetch(buildUrl(ENDPOINTS.CONTACT), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactName,
+          email: contactEmail,
+          message: contactMessage,
+        }),
+      });
+
+      if (!response.ok) {
+        let message = 'Failed to send message. Please try again later.';
+        try {
+          const data = await response.json();
+          message = data?.errors?.name?.[0] || data?.errors?.email?.[0] || data?.errors?.message?.[0] || message;
+        } catch {
+          // keep default message if response is not JSON
+        }
+        throw new Error(message);
+      }
+
       setContactSuccess(true);
       setContactName('');
       setContactEmail('');
       setContactMessage('');
       setTimeout(() => setContactSuccess(false), 4000);
+    } catch (err: any) {
+      setContactError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setContactLoading(false);
     }
   };
 
@@ -423,6 +460,18 @@ export const Home: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleContactSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {contactError ? (
+                  <div style={{
+                    padding: '0.75rem 1rem',
+                    borderRadius: '10px',
+                    background: 'rgba(220, 53, 69, 0.1)',
+                    border: '1px solid rgba(220, 53, 69, 0.3)',
+                    color: '#721c24',
+                    fontSize: '0.85rem',
+                  }}>
+                    {contactError}
+                  </div>
+                ) : null}
                 <div className="form-group">
                   <label className="form-label" style={{ color: '#2c4a4a' }}>Your Name</label>
                   <input 
@@ -496,8 +545,8 @@ export const Home: React.FC = () => {
                   justifyContent: 'center',
                   cursor: 'pointer'
                 }}>
-                  <Send size={16} />
-                  <span>Send Message</span>
+                  {contactLoading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={16} />}
+                  <span>{contactLoading ? 'Sending...' : 'Send Message'}</span>
                 </button>
               </form>
             )}

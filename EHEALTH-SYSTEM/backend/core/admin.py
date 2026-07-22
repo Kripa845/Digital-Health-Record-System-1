@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template.response import TemplateResponse
 from django.contrib import messages
 
-from .models import User, PatientProfile, FamilyMemberProfile, PatientDocument, MedicalHistoryEntry, PatientOTP
+from .models import User, PatientProfile, FamilyMemberProfile, PatientDocument, MedicalHistoryEntry, PatientOTP, ContactMessage
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -682,6 +682,15 @@ admin.site.register(FamilyMemberProfile, FamilyMemberProfileAdmin)
 admin.site.register(MedicalHistoryEntry, MedicalHistoryEntryAdmin)
 admin.site.register(PatientDocument, PatientDocumentAdmin)
 admin.site.register(PatientOTP, PatientOTPAdmin)
+
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'is_read', 'created_at')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('name', 'email', 'message')
+    readonly_fields = ('created_at',)
+    ordering = ['-created_at']
+
+admin.site.register(ContactMessage, ContactMessageAdmin)
 
 # Monkey-patch the admin index to inject dashboard data
 from django.contrib import admin as django_admin
