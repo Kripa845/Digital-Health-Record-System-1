@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { KeyRound, User as UserIcon, Lock, AlertCircle, ShieldAlert, Sparkles, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { colors, glassCard, glassCardInput, label, value } from '../styles/theme';
 
 export const Login: React.FC = () => {
   const { loginInit, loginVerify, forgotPassword, resetPassword, user, serverStatus, prewarmServer, ensureServerWarm } = useAuth();
@@ -156,25 +157,21 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="container" style={{ 
+    <div style={{ 
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center', 
       minHeight: '100vh',
       width: '100%',
-      background: 'linear-gradient(135deg, #e8f5e9 0%, #e0f2f1 30%, #b2dfdb 60%, #c8e6c9 100%)',
+      background: colors.bgPageGradient,
       padding: '2rem 1.5rem'
     }}>
-      <div className="glass-card" style={{ 
+      <div style={{ 
+        ...glassCard,
         width: '100%', 
         maxWidth: '450px', 
         position: 'relative',
-        background: 'rgba(255,255,255,0.85)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: '20px',
-        padding: '2.5rem',
-        border: '1px solid rgba(0, 137, 123, 0.15)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.05)'
+        padding: '2.5rem'
       }}>
         
         {/* Top Glow decoration */}
@@ -186,7 +183,7 @@ export const Login: React.FC = () => {
           width: '120px',
           height: '120px',
           borderRadius: '50%',
-          background: 'hsla(var(--primary), 0.15)',
+          background: `rgba(0, 137, 123, 0.15)`,
           filter: 'blur(30px)',
           pointerEvents: 'none'
         }}></div>
@@ -197,11 +194,11 @@ export const Login: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.6rem',
-            color: '#00897b',
-            background: 'rgba(0, 137, 123, 0.08)',
-            border: '1px solid rgba(0, 137, 123, 0.2)',
+            color: colors.primary,
+            background: colors.tealGhostStrong,
+            border: `1px solid ${colors.borderGlassStrong}`,
             padding: '0.8rem 1rem',
-            borderRadius: '12px',
+            borderRadius: colors.radiusXl,
             fontSize: '0.85rem',
             marginBottom: '1.5rem'
           }}>
@@ -216,11 +213,11 @@ export const Login: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.6rem',
-            color: '#d32f2f',
-            background: 'rgba(211, 47, 47, 0.1)',
-            border: '1px solid rgba(211, 47, 47, 0.2)',
+            color: colors.errorLight,
+            background: colors.errorBg,
+            border: `1px solid ${colors.errorBorder}`,
             padding: '0.8rem 1rem',
-            borderRadius: '12px',
+            borderRadius: colors.radiusXl,
             fontSize: '0.85rem',
             marginBottom: '1.5rem'
           }}>
@@ -235,18 +232,18 @@ export const Login: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '0.4rem',
-            background: 'rgba(0, 137, 123, 0.05)',
-            border: '1px dashed rgba(0, 137, 123, 0.4)',
+            background: colors.tealGhost,
+            border: `1px dashed ${colors.borderGlassStrong}`,
             padding: '0.8rem 1rem',
-            borderRadius: '12px',
+            borderRadius: colors.radiusXl,
             fontSize: '0.85rem',
             marginBottom: '1.5rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#00897b', fontWeight: 600 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: colors.primary, fontWeight: 600 }}>
               <Sparkles size={14} />
               <span>Simulated SMS/Email OTP code:</span>
             </div>
-            <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1a3a3a', letterSpacing: '0.05em' }}>{simulatedOtp}</p>
+            <p style={{ fontSize: '1.1rem', fontWeight: 800, color: colors.textPrimary, letterSpacing: '0.05em' }}>{simulatedOtp}</p>
           </div>
         )}
 
@@ -255,11 +252,11 @@ export const Login: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.6rem',
-            color: '#43a047',
-            background: 'rgba(67, 160, 71, 0.1)',
-            border: '1px solid rgba(67, 160, 71, 0.2)',
+            color: colors.secondary,
+            background: colors.successLight,
+            border: `1px solid ${colors.successBorder}`,
             padding: '0.8rem 1rem',
-            borderRadius: '12px',
+            borderRadius: colors.radiusXl,
             fontSize: '0.85rem',
             marginBottom: '1.5rem'
           }}>
@@ -272,12 +269,12 @@ export const Login: React.FC = () => {
         {showOtpScreen ? (
           <div>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div className="feature-icon-wrapper" style={{ 
+              <div style={{ 
                 margin: '0 auto 1rem', 
-                color: '#00897b',
+                color: colors.primary,
                 width: '60px',
                 height: '60px',
-                background: 'rgba(0, 137, 123, 0.1)',
+                background: colors.tealGhostStrong,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -285,33 +282,27 @@ export const Login: React.FC = () => {
               }}>
                 <ShieldAlert size={24} />
               </div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: '#1a3a3a' }}>Enter OTP</h2>
-              <p style={{ color: '#2c4a4a', fontSize: '0.9rem' }}>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: colors.textPrimary }}>Enter OTP</h2>
+              <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>
                 A 6-digit verification code has been dispatched. Enter it below to unlock access.
               </p>
             </div>
 
             <form onSubmit={handleOtpVerify}>
-              <div className="form-group" style={{ marginBottom: '2rem' }}>
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Verification Code</label>
+              <div style={{ marginBottom: '2rem' }}>
+                <label style={{ ...label }}>Verification Code</label>
                 <input 
                   type="text" 
                   maxLength={6}
                   placeholder="e.g. 123456"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  className="form-input"
                   style={{ 
+                    ...glassCardInput,
                     textAlign: 'center', 
                     letterSpacing: '0.5em', 
                     fontSize: '1.25rem', 
-                    fontWeight: 700,
-                    width: '100%',
-                    padding: '0.8rem',
-                    background: 'rgba(255,255,255,0.5)',
-                    border: '1px solid rgba(0, 137, 123, 0.15)',
-                    borderRadius: '10px',
-                    color: '#1a3a3a'
+                    fontWeight: 700
                   }}
                   disabled={loading}
                 />
@@ -319,16 +310,16 @@ export const Login: React.FC = () => {
 
               <button 
                 type="submit" 
-                className="btn btn-primary" 
                 style={{ 
                   width: '100%', 
                   padding: '1rem',
-                  background: 'linear-gradient(135deg, #00897b, #43a047)',
+                  background: colors.gradientPrimaryBtn,
                   border: 'none',
-                  borderRadius: '10px',
-                  color: '#fff',
+                  borderRadius: colors.radiusLg,
+                  color: colors.onPrimary,
                   fontWeight: 600,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: colors.shadowPrimaryBtn
                 }}
                 disabled={loading}
               >
@@ -338,15 +329,14 @@ export const Login: React.FC = () => {
               <button 
                 type="button" 
                 onClick={resetFlow} 
-                className="btn btn-secondary" 
                 style={{ 
                   width: '100%', 
                   padding: '1rem', 
                   marginTop: '0.8rem',
-                  background: 'rgba(255,255,255,0.7)',
-                  border: '1px solid rgba(0, 137, 123, 0.3)',
-                  borderRadius: '10px',
-                  color: '#00695c',
+                  background: colors.bgGlassLight,
+                  border: `1px solid ${colors.borderPrimary}`,
+                  borderRadius: colors.radiusLg,
+                  color: colors.darkGreen,
                   fontWeight: 600,
                   cursor: 'pointer'
                 }}
@@ -360,12 +350,12 @@ export const Login: React.FC = () => {
           /* SCREEN 2: FORGOT PASSWORD FLOW */
           <div>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div className="feature-icon-wrapper" style={{ 
+              <div style={{ 
                 margin: '0 auto 1rem', 
-                color: '#43a047',
+                color: colors.secondary,
                 width: '60px',
                 height: '60px',
-                background: 'rgba(67, 160, 71, 0.1)',
+                background: colors.successLight,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -373,49 +363,44 @@ export const Login: React.FC = () => {
               }}>
                 <KeyRound size={24} />
               </div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: '#1a3a3a' }}>Forgot Password</h2>
-              <p style={{ color: '#2c4a4a', fontSize: '0.9rem' }}>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: colors.textPrimary }}>Forgot Password</h2>
+              <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>
                 Enter the email address registered to your account. We will send a reset OTP there.
               </p>
             </div>
 
             {forgotStep === 1 ? (
               <form onSubmit={handleForgotPasswordRequest}>
-                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Email Address</label>
+                <div style={{ marginBottom: '2rem' }}>
+                  <label style={{ ...label }}>Email Address</label>
                   <div style={{ position: 'relative' }}>
                     <input 
                       type="email"
                       placeholder="Enter your registered email"
                       value={forgotInput}
                       onChange={(e) => setForgotInput(e.target.value)}
-                      className="form-input"
                       style={{ 
-                        width: '100%',
-                        padding: '0.8rem 0.8rem 0.8rem 2.5rem',
-                        background: 'rgba(255,255,255,0.5)',
-                        border: '1px solid rgba(0, 137, 123, 0.15)',
-                        borderRadius: '10px',
-                        color: '#1a3a3a'
+                        ...glassCardInput,
+                        paddingLeft: '2.5rem'
                       }}
                       disabled={loading}
                     />
-                    <UserIcon size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#2c4a4a' }} />
+                    <UserIcon size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: colors.textSecondary }} />
                   </div>
                 </div>
 
                 <button 
                   type="submit" 
-                  className="btn btn-primary" 
                   style={{ 
                     width: '100%', 
                     padding: '1rem',
-                    background: 'linear-gradient(135deg, #00897b, #43a047)',
+                    background: colors.gradientPrimaryBtn,
                     border: 'none',
-                    borderRadius: '10px',
-                    color: '#fff',
+                    borderRadius: colors.radiusLg,
+                    color: colors.onPrimary,
                     fontWeight: 600,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: colors.shadowPrimaryBtn
                   }}
                   disabled={loading}
                 >
@@ -425,15 +410,14 @@ export const Login: React.FC = () => {
                 <button 
                   type="button" 
                   onClick={resetFlow} 
-                  className="btn btn-secondary" 
                   style={{ 
                     width: '100%', 
                     padding: '1rem', 
                     marginTop: '0.8rem',
-                    background: 'rgba(255,255,255,0.7)',
-                    border: '1px solid rgba(0, 137, 123, 0.3)',
-                    borderRadius: '10px',
-                    color: '#00695c',
+                    background: colors.bgGlassLight,
+                    border: `1px solid ${colors.borderPrimary}`,
+                    borderRadius: colors.radiusLg,
+                    color: colors.darkGreen,
                     fontWeight: 600,
                     cursor: 'pointer'
                   }}
@@ -443,50 +427,40 @@ export const Login: React.FC = () => {
               </form>
             ) : (
               <form onSubmit={handleResetPasswordSubmit}>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Reset OTP Code</label>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ ...label }}>Reset OTP Code</label>
                   <input 
                     type="text" 
                     maxLength={6}
                     placeholder="Enter reset code"
                     value={forgotOtp}
                     onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
-                    className="form-input"
                     style={{ 
-                      width: '100%',
-                      padding: '0.8rem',
+                      ...glassCardInput,
                       textAlign: 'center',
                       letterSpacing: '0.2em',
-                      fontWeight: 700,
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
+                      fontWeight: 700
                     }}
                     disabled={loading}
                   />
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>New Password</label>
+                <div style={{ marginBottom: '2rem' }}>
+                  <label style={{ ...label }}>New Password</label>
                   <div style={{ position: 'relative' }}>
                     <input 
                       type={showNewPassword ? "text" : "password"}
                       placeholder="Enter new password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="form-input"
                       style={{ 
-                        width: '100%',
-                        padding: '0.8rem 2.5rem 0.8rem 2.5rem',
-                        background: 'rgba(255,255,255,0.5)',
-                        border: '1px solid rgba(0, 137, 123, 0.15)',
-                        borderRadius: '10px',
-                        color: '#1a3a3a'
+                        ...glassCardInput,
+                        paddingLeft: '2.5rem',
+                        paddingRight: '2.5rem'
                       }}
                       disabled={loading}
                     />
-                    <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#2c4a4a' }} />
+                    <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: colors.textSecondary }} />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
@@ -497,7 +471,7 @@ export const Login: React.FC = () => {
                         transform: 'translateY(-50%)',
                         background: 'none',
                         border: 'none',
-                        color: '#2c4a4a',
+                        color: colors.textSecondary,
                         cursor: 'pointer',
                         padding: '0.2rem',
                         display: 'flex',
@@ -511,16 +485,16 @@ export const Login: React.FC = () => {
 
                 <button 
                   type="submit" 
-                  className="btn btn-primary" 
                   style={{ 
                     width: '100%', 
                     padding: '1rem',
-                    background: 'linear-gradient(135deg, #00897b, #43a047)',
+                    background: colors.gradientPrimaryBtn,
                     border: 'none',
-                    borderRadius: '10px',
-                    color: '#fff',
+                    borderRadius: colors.radiusLg,
+                    color: colors.onPrimary,
                     fontWeight: 600,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: colors.shadowPrimaryBtn
                   }}
                   disabled={loading}
                 >
@@ -530,15 +504,14 @@ export const Login: React.FC = () => {
                 <button 
                   type="button" 
                   onClick={() => setForgotStep(1)} 
-                  className="btn btn-secondary" 
                   style={{ 
                     width: '100%', 
                     padding: '1rem', 
                     marginTop: '0.8rem',
-                    background: 'rgba(255,255,255,0.7)',
-                    border: '1px solid rgba(0, 137, 123, 0.3)',
-                    borderRadius: '10px',
-                    color: '#00695c',
+                    background: colors.bgGlassLight,
+                    border: `1px solid ${colors.borderPrimary}`,
+                    borderRadius: colors.radiusLg,
+                    color: colors.darkGreen,
                     fontWeight: 600,
                     cursor: 'pointer'
                   }}
@@ -553,67 +526,58 @@ export const Login: React.FC = () => {
           /* SCREEN 3: STANDARD LOGIN SCREEN */
           <div>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div className="feature-icon-wrapper" style={{
+              <div style={{
                 margin: '0 auto 1rem',
                 width: '60px',
                 height: '60px',
-                background: 'rgba(0, 137, 123, 0.1)',
+                background: colors.tealGhostStrong,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#00897b'
+                color: colors.primary
               }}>
                 <KeyRound size={24} />
               </div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: '#1a3a3a' }}>Patient Sign In</h2>
-              <p style={{ color: '#2c4a4a', fontSize: '0.9rem' }}>Enter credentials to access your Mero Care health profile.</p>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: colors.textPrimary }}>Patient Sign In</h2>
+              <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>Enter credentials to access your Mero Care health profile.</p>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Username or Mobile Number</label>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ ...label }}>Username or Mobile Number</label>
                 <div style={{ position: 'relative' }}>
                   <input 
                     type="text" 
                     placeholder="Enter username or phone"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="form-input"
                     style={{ 
-                      width: '100%',
-                      padding: '0.8rem 0.8rem 0.8rem 2.5rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
+                      ...glassCardInput,
+                      paddingLeft: '2.5rem'
                     }}
                     disabled={loading}
                   />
-                  <UserIcon size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#2c4a4a' }} />
+                  <UserIcon size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: colors.textSecondary }} />
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Password</label>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ ...label }}>Password</label>
                 <div style={{ position: 'relative' }}>
                   <input 
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="form-input"
                     style={{ 
-                      width: '100%',
-                      padding: '0.8rem 2.5rem 0.8rem 2.5rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
+                      ...glassCardInput,
+                      paddingLeft: '2.5rem',
+                      paddingRight: '2.5rem'
                     }}
                     disabled={loading}
                   />
-                  <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#2c4a4a' }} />
+                  <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: colors.textSecondary }} />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -624,7 +588,7 @@ export const Login: React.FC = () => {
                       transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
-                      color: '#2c4a4a',
+                      color: colors.textSecondary,
                       cursor: 'pointer',
                       padding: '0.2rem',
                       display: 'flex',
@@ -644,7 +608,7 @@ export const Login: React.FC = () => {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#00897b',
+                    color: colors.primary,
                     fontSize: '0.85rem',
                     fontWeight: 600,
                     cursor: 'pointer'
@@ -656,16 +620,16 @@ export const Login: React.FC = () => {
 
               <button 
                 type="submit" 
-                className="btn btn-primary" 
                 style={{
                   width: '100%',
                   padding: '1rem',
-                  background: 'linear-gradient(135deg, #00897b, #43a047)',
+                  background: colors.gradientPrimaryBtn,
                   border: 'none',
-                  borderRadius: '10px',
-                  color: '#fff',
+                  borderRadius: colors.radiusLg,
+                  color: colors.onPrimary,
                   fontWeight: 600,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: colors.shadowPrimaryBtn
                 }}
                 disabled={loading}
               >
@@ -673,9 +637,9 @@ export const Login: React.FC = () => {
               </button>
             </form>
 
-            <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: '#2c4a4a' }}>
+            <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: colors.textSecondary }}>
               Don't have an account?{' '}
-              <Link to="/register" style={{ color: '#00897b', fontWeight: 600, textDecoration: 'none' }}>
+              <Link to="/register" style={{ color: colors.primary, fontWeight: 600, textDecoration: 'none' }}>
                 Create one here
               </Link>
             </div>

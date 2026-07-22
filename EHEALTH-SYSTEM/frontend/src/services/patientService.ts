@@ -8,7 +8,7 @@ export const deleteAccount = async (
 ) => {
 
     const response = await fetch(
-        `${API_URL}/patient-profile/delete-me/`,
+        `${API_URL}/patients/delete-me/`,
         {
             method: "DELETE",
 
