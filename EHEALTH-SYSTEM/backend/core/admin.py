@@ -23,7 +23,8 @@ class FamilyMemberProfileInline(admin.TabularInline):
     model = FamilyMemberProfile
     extra = 0
     fields = (
-        'full_name',
+        'first_name',
+        'last_name',
         'relationship',
         'gender',
         'blood_group',
