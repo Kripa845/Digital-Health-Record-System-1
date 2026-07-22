@@ -357,7 +357,8 @@ class PatientProfileAdmin(admin.ModelAdmin):
 
 class FamilyMemberProfileAdmin(admin.ModelAdmin):
     list_display = (
-        'full_name',
+        'first_name',
+        'last_name',
         'patient_healthcare_id',
         'patient_name',
         'relationship',
