@@ -312,27 +312,35 @@ JAZZMIN_SETTINGS = {
     "dashboard": [
         {
             "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.count(),
+            "name": "Total Users",
+            "icon": "fas fa-users",
+            "color": "primary",
+            "link": "/admin/core/user/",
+        },
+        {
+            "type": "stat",
             "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.filter(role="PATIENT").count(),
             "name": "Total Patients",
             "icon": "fas fa-hospital-user",
-            "color": "primary",
+            "color": "info",
             "link": "/admin/core/patientprofile/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.filter(role="ADMIN").count(),
+            "name": "Total Admins / Hospitals",
+            "icon": "fas fa-user-shield",
+            "color": "success",
+            "link": "/admin/core/user/",
         },
         {
             "type": "stat",
             "value": lambda request: __import__("core.models", fromlist=["FamilyMemberProfile"]).FamilyMemberProfile.objects.count(),
             "name": "Total Family Members",
             "icon": "fas fa-user-friends",
-            "color": "info",
-            "link": "/admin/core/familymemberprofile/",
-        },
-        {
-            "type": "stat",
-            "value": lambda request: __import__("core.models", fromlist=["PatientDocument"]).PatientDocument.objects.count(),
-            "name": "Documents",
-            "icon": "fas fa-file-medical",
             "color": "warning",
-            "link": "/admin/core/patientdocument/",
+            "link": "/admin/core/familymemberprofile/",
         },
         {
             "type": "stat",
@@ -344,34 +352,43 @@ JAZZMIN_SETTINGS = {
         },
         {
             "type": "stat",
-            "value": lambda request: (
-                __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.aggregate(total=models.Sum("scan_count"))["total"] or 0
-            ) + (
-                __import__("core.models", fromlist=["FamilyMemberProfile"]).FamilyMemberProfile.objects.aggregate(total=models.Sum("scan_count"))["total"] or 0
-            ),
-            "name": "QR Scans",
-            "icon": "fas fa-eye",
+            "value": lambda request: __import__("core.models", fromlist=["PatientDocument"]).PatientDocument.objects.count(),
+            "name": "Documents Uploaded",
+            "icon": "fas fa-file-medical",
             "color": "pink",
-            "link": "/admin/core/patientprofile/",
+            "link": "/admin/core/patientdocument/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["MedicalHistoryEntry"]).MedicalHistoryEntry.objects.count(),
+            "name": "Medical Reports",
+            "icon": "fas fa-notes-medical",
+            "color": "teal",
+            "link": "/admin/core/medicalhistoryentry/",
+        },
+        {
+            "type": "stat",
+            "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.filter(is_active=True).count(),
+            "name": "Active Users",
+            "icon": "fas fa-user-check",
+            "color": "navy",
+            "link": "/admin/core/user/",
         },
         {
             "type": "stat",
             "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.filter(is_profile_setup=True).count(),
-            "name": "Active Patients",
-            "icon": "fas fa-user-check",
-            "color": "teal",
+            "name": "Verified Users",
+            "icon": "fas fa-check-circle",
+            "color": "success",
             "link": "/admin/core/patientprofile/",
         },
         {
             "type": "stat",
-            "value": lambda request: __import__("core.models", fromlist=["PatientProfile"]).PatientProfile.objects.filter(
-                user__date_joined__month=__import__("django.utils.timezone").timezone.now().month,
-                user__date_joined__year=__import__("django.utils.timezone").timezone.now().year,
-            ).count(),
-            "name": "New This Month",
-            "icon": "fas fa-user-plus",
-            "color": "navy",
-            "link": "/admin/core/patientprofile/",
+            "value": lambda request: __import__("core.models", fromlist=["User"]).User.objects.filter(is_active=False).count(),
+            "name": "Pending Requests",
+            "icon": "fas fa-clock",
+            "color": "danger",
+            "link": "/admin/core/user/",
         },
     ],
 }
@@ -379,7 +396,7 @@ JAZZMIN_SETTINGS = {
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
     "footer_small_text": False,
-    "body_small_text": False,
+    "body_small_text": True,
     "brand_small_text": False,
     "brand_colour": "navbar-teal",
     "accent": "accent-teal",
@@ -408,4 +425,5 @@ JAZZMIN_UI_TWEAKS = {
     "layout_boxed": False,
     "footer_fixed": False,
     "side_menu_accordion": False,
+    "related_modal_active": True,
 }

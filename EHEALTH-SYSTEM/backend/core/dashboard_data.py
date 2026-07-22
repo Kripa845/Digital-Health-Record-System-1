@@ -8,31 +8,52 @@ User = get_user_model()
 
 
 def get_dashboard_stats():
+    """Real-time dashboard statistics directly from the database."""
     today = timezone.now()
     month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    week_start = today - timedelta(days=today.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
 
     stats = {
-        "total_patients": User.objects.filter(role="PATIENT").count(),
+        "total_users": User.objects.count(),
+        "total_patients": 0,
+        "total_admins": 0,
         "total_family_members": 0,
-        "total_documents": 0,
         "total_qr_generated": 0,
-        "total_qr_scans": 0,
+        "total_documents": 0,
+        "total_medical_reports": 0,
+        "total_active_users": 0,
+        "total_verified_users": 0,
+        "total_pending_requests": 0,
         "active_patients": 0,
         "new_patients_this_month": 0,
+        "new_users_this_week": 0,
     }
 
     try:
-        from .models import PatientProfile, FamilyMemberProfile, PatientDocument
+        from .models import PatientProfile, FamilyMemberProfile, PatientDocument, MedicalHistoryEntry
 
+        stats["total_patients"] = User.objects.filter(role="PATIENT").count()
+        stats["total_admins"] = User.objects.filter(role="ADMIN").count()
         stats["total_family_members"] = FamilyMemberProfile.objects.count()
         stats["total_documents"] = PatientDocument.objects.count()
-        stats["total_qr_generated"] = PatientProfile.objects.filter(qr_token__isnull=False).count() + FamilyMemberProfile.objects.filter(qr_token__isnull=False).count()
+        stats["total_medical_reports"] = MedicalHistoryEntry.objects.count()
+        stats["total_qr_generated"] = (
+            PatientProfile.objects.filter(qr_token__isnull=False).count()
+            + FamilyMemberProfile.objects.filter(qr_token__isnull=False).count()
+        )
         patient_scans = PatientProfile.objects.aggregate(total=Sum("scan_count"))["total"] or 0
         family_scans = FamilyMemberProfile.objects.aggregate(total=Sum("scan_count"))["total"] or 0
         stats["total_qr_scans"] = patient_scans + family_scans
         stats["active_patients"] = PatientProfile.objects.filter(is_profile_setup=True).count()
+        stats["total_verified_users"] = PatientProfile.objects.filter(is_profile_setup=True).count()
+        stats["total_active_users"] = User.objects.filter(is_active=True).count()
+        stats["total_pending_requests"] = User.objects.filter(is_active=False).count()
         stats["new_patients_this_month"] = PatientProfile.objects.filter(
             user__date_joined__gte=month_start
+        ).count()
+        stats["new_users_this_week"] = User.objects.filter(
+            date_joined__gte=week_start
         ).count()
     except ImportError:
         pass
@@ -41,6 +62,7 @@ def get_dashboard_stats():
 
 
 def get_chart_data():
+    """Real-time chart data directly from the database."""
     today = timezone.now()
     months = []
     for i in range(11, -1, -1):
@@ -54,7 +76,7 @@ def get_chart_data():
     try:
         from .models import PatientProfile, PatientDocument, FamilyMemberProfile
 
-        # Registrations by month — truncate date_joined to month, then group
+        # Registrations by month
         regs = (
             PatientProfile.objects.filter(
                 user__date_joined__gte=today - timedelta(days=365)
@@ -122,6 +144,7 @@ def get_chart_data():
 
     gender_data = {"Male": 0, "Female": 0, "Other": 0}
     blood_group_data = {}
+    role_data = {"Patient": 0, "Admin": 0}
 
     try:
         from .models import PatientProfile, FamilyMemberProfile
@@ -139,6 +162,10 @@ def get_chart_data():
             if bg:
                 blood_group_data[bg] = item["count"]
 
+        # Role distribution
+        role_data["Patient"] = User.objects.filter(role="PATIENT").count()
+        role_data["Admin"] = User.objects.filter(role="ADMIN").count()
+
     except ImportError:
         pass
 
@@ -149,4 +176,64 @@ def get_chart_data():
         "documents": documents_by_month,
         "gender": gender_data,
         "blood_groups": blood_group_data,
+        "roles": role_data,
     }
+
+
+def get_recent_activity():
+    """Recent activity data for dashboard widgets."""
+    recent = {
+        "recent_patients": [],
+        "recent_documents": [],
+        "recent_users": [],
+    }
+
+    try:
+        from .models import PatientProfile, PatientDocument, User
+
+        recent_patients_qs = (
+            PatientProfile.objects.select_related("user")
+            .order_by("-user__date_joined")[:5]
+        )
+        recent["recent_patients"] = [
+            {
+                "name": p.user.get_full_name() or p.user.username,
+                "healthcare_id": p.healthcare_id,
+                "date": p.user.date_joined,
+                "email": p.user.email,
+            }
+            for p in recent_patients_qs
+        ]
+
+        recent_documents_qs = (
+            PatientDocument.objects.select_related("patient__user", "family_member")
+            .order_by("-uploaded_at")[:5]
+        )
+        recent["recent_documents"] = [
+            {
+                "title": d.title,
+                "patient": d.patient.user.get_full_name() or d.patient.user.username,
+                "owner": "Family" if d.family_member else "Main",
+                "date": d.uploaded_at,
+                "file_type": d.file_type,
+            }
+            for d in recent_documents_qs
+        ]
+
+        recent_users_qs = (
+            User.objects.order_by("-date_joined")[:5]
+        )
+        recent["recent_users"] = [
+            {
+                "username": u.username,
+                "role": u.role,
+                "date": u.date_joined,
+                "is_active": u.is_active,
+            }
+            for u in recent_users_qs
+        ]
+
+    except ImportError:
+        pass
+
+    return recent

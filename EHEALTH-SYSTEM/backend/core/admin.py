@@ -720,9 +720,11 @@ def _patched_index(request, extra_context=None):
 
     stats = get_dashboard_stats()
     chart_data = get_chart_data()
+    recent_activity = get_recent_activity()
     extra_context = extra_context or {}
     extra_context['stats'] = stats
     extra_context['chart_data'] = chart_data
+    extra_context['recent_activity'] = recent_activity
 
     quick_links = [
         {"name": "Manage Patients", "url": "/admin/core/patientprofile/", "icon": "fas fa-hospital-user", "color": "primary"},
