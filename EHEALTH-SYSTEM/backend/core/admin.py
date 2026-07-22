@@ -594,7 +594,8 @@ class PatientDocumentAdmin(admin.ModelAdmin):
 
     def owner_type(self, obj):
         if obj.family_member:
-            return format_html('<span style="color: orange;">Family: {}</span>', obj.family_member.full_name)
+            name = f"{obj.family_member.first_name} {obj.family_member.last_name}"
+            return format_html('<span style="color: orange;">Family: {}</span>', name)
         return format_html('<span style="color: green;">Main Patient</span>')
     owner_type.short_description = "Owner"
 
