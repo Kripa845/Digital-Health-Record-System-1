@@ -8,11 +8,6 @@ from apps.accounts.views import (
     PatientProfileViewSet,
     MedicalHistoryEntryViewSet,
     PatientDocumentViewSet,
-    login_init,
-    login_verify,
-    forgot_password,
-    reset_password,
-    verify_reset_otp,
     health_check,
     public_profile,
     get_qr_token
@@ -26,11 +21,6 @@ router.register(r'documents', PatientDocumentViewSet, basename='patient-document
 urlpatterns = [
     path('auth/register/patient/', RegisterPatientView.as_view(), name='register-patient'),
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token-obtain-pair'),
-    path('auth/login-init/', login_init, name='login-init'),
-    path('auth/login-verify/', login_verify, name='login-verify'),
-    path('auth/verify-reset-otp/', verify_reset_otp, name='verify-reset-otp'),
-    path('auth/forgot-password/', forgot_password, name='forgot-password'),
-    path('auth/reset-password/', reset_password, name='reset-password'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('health/', health_check, name='health-check'),
     path('public-profile/<uuid:token>/', public_profile, name='public-profile'),

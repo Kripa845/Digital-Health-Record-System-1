@@ -201,9 +201,9 @@ export const Home: React.FC = () => {
             <div style={{ color: colors.secondary }}>
               <ShieldCheck size={24} />
             </div>
-            <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: colors.textPrimary }}>MFA & OTP Protection</h3>
+            <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: colors.textPrimary }}>Secure JWT Login</h3>
             <p style={{ fontSize: '0.9rem', color: colors.textSecondary }}>
-              Login securely using mobile username, backed by random 6-digit OTP verification codes sent during each access request.
+              Authenticate safely with username and password. Access is protected by stateless JWT tokens issued only after successful sign-in.
             </p>
           </div>
 

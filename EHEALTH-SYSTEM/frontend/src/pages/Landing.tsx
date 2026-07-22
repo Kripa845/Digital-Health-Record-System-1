@@ -96,8 +96,8 @@ export const Landing: React.FC = () => {
             </div>
             <div style={{ ...glassCard, transition: 'all 0.3s ease', border: `1px solid ${colors.successBorder}` }}>
               <div style={{ color: colors.secondary }}><ShieldCheck size={24} /></div>
-              <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: colors.textPrimary }}>MFA &amp; OTP Protection</h3>
-              <p style={{ fontSize: '0.9rem', color: colors.textSecondary }}>Login securely using mobile username, backed by random 6-digit OTP verification codes.</p>
+              <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: colors.textPrimary }}>Secure JWT Login</h3>
+              <p style={{ fontSize: '0.9rem', color: colors.textSecondary }}>Authenticate safely with username and password. Access is protected by stateless JWT tokens issued only after successful sign-in.</p>
             </div>
             <div style={{ ...glassCard, transition: 'all 0.3s ease', border: `1px solid ${colors.borderGlass}` }}>
               <div style={{ color: colors.primary }}><FilePlus2 size={24} /></div>
