@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlusCircle, AlertCircle, CheckCircle2, FileText, Download, Trash2 } from 'lucide-react';
-import type { FamilyMemberData, DocumentData } from '../../types/patient';
+import type { DocumentData } from '../../types/patient';
 
 interface DocumentsTabProps {
   docTitle: string;
@@ -15,15 +15,13 @@ interface DocumentsTabProps {
   handleDocDelete: (id: number) => void;
   submitting: boolean;
   documents: DocumentData[];
-  familyDocs: DocumentData[];
-  familyMembers: FamilyMemberData[];
   patientFullName: string;
 }
 
 export const DocumentsTab: React.FC<DocumentsTabProps> = ({
   docTitle, setDocTitle, selectedFile, setSelectedFile, docError, docSuccess,
   docFilter, setDocFilter, handleDocUpload, handleDocDelete, submitting,
-  documents, familyDocs, familyMembers, patientFullName
+  documents, patientFullName
 }) => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
@@ -61,8 +59,8 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
           <div className="form-group">
             <label className="form-label" style={{ color: '#2c4a4a' }}>For Account</label>
             <select 
-              value={docFilter} 
-              onChange={(e) => setDocFilter(e.target.value)} 
+              disabled
+              value="main" 
               className="form-input" 
               style={{ 
                 width: '100%',
@@ -74,9 +72,6 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
               }}
             >
               <option value="main">Primary Account ({patientFullName})</option>
-              {familyMembers.map(m => (
-                <option key={m.id} value={m.id}>{m.first_name} {m.last_name} ({m.relationship})</option>
-              ))}
             </select>
           </div>
 
@@ -158,33 +153,14 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
             <FileText size={18} style={{ color: '#00897b' }} />
             <span>Document Vault</span>
           </h3>
-          
-          {/* Switch list preview between Main and Family */}
-          <select 
-            value={docFilter} 
-            onChange={(e) => setDocFilter(e.target.value)} 
-            style={{ 
-              padding: '0.3rem 0.5rem', 
-              borderRadius: '8px', 
-              background: 'rgba(255,255,255,0.5)', 
-              border: '1px solid rgba(0, 137, 123, 0.15)', 
-              color: '#1a3a3a', 
-              fontSize: '0.8rem' 
-            }}
-          >
-            <option value="main">My Documents</option>
-            {familyMembers.map(m => (
-              <option key={m.id} value={m.id}>{m.first_name}'s Docs</option>
-            ))}
-          </select>
         </div>
 
         {/* File list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxHeight: '420px', overflowY: 'auto' }}>
-          {(docFilter === 'main' ? documents : familyDocs).length === 0 ? (
+          {documents.length === 0 ? (
             <p style={{ color: '#2c4a4a', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>No documents uploaded in this folder.</p>
           ) : (
-            (docFilter === 'main' ? documents : familyDocs).map((doc) => (
+            documents.map((doc) => (
               <div key={doc.id} style={{
                 display: 'flex',
                 justifyContent: 'space-between',

@@ -56,14 +56,13 @@ INSTALLED_APPS = [
     'corsheaders',
     'apps.accounts',
     'apps.patients',
-    'apps.family',
     'apps.medical_history',
     'apps.documents',
     'apps.qr',
-    'apps.otp',
-    'apps.dashboard',
     'apps.common',
     'apps.contact',
+    'apps.doctors',
+    'apps.recommendations',
     'core',
 ]
 
@@ -304,10 +303,8 @@ JAZZMIN_SETTINGS = {
         "auth.Group": "fas fa-users",
         "core.User": "fas fa-user-md",
         "core.PatientProfile": "fas fa-hospital-user",
-        "core.FamilyMemberProfile": "fas fa-user-friends",
         "core.MedicalHistoryEntry": "fas fa-notes-medical",
         "core.PatientDocument": "fas fa-file-medical",
-        "core.PatientOTP": "fas fa-key",
     },
     "dashboard": [
         {
@@ -333,14 +330,6 @@ JAZZMIN_SETTINGS = {
             "icon": "fas fa-user-shield",
             "color": "success",
             "link": "/admin/core/user/",
-        },
-        {
-            "type": "stat",
-            "value": lambda request: __import__("core.models", fromlist=["FamilyMemberProfile"]).FamilyMemberProfile.objects.count(),
-            "name": "Total Family Members",
-            "icon": "fas fa-user-friends",
-            "color": "warning",
-            "link": "/admin/core/familymemberprofile/",
         },
         {
             "type": "stat",

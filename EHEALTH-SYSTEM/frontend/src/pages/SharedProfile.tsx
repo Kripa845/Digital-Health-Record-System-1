@@ -4,7 +4,7 @@ import { Shield, FileText, Heart, User, Sparkles, Download, Phone, ClipboardList
 import { API_BASE } from '../config/api';
 
 interface PublicProfileData {
-  type: 'PATIENT' | 'FAMILY_MEMBER';
+  type: 'PATIENT';
   profile: {
     first_name?: string;
     last_name?: string;
@@ -15,7 +15,6 @@ interface PublicProfileData {
       mobile_number: string;
     };
     healthcare_id?: string;
-    relationship?: string;
     age: number | null;
     gender: string;
     blood_group: string;
@@ -37,12 +36,6 @@ interface PublicProfileData {
     file_size: string;
     file_type: string;
     uploaded_at: string;
-  }>;
-  family_members?: Array<{
-    first_name: string;
-    last_name: string;
-    relationship: string;
-    qr_token: string;
   }>;
 }
 
@@ -153,9 +146,8 @@ export const SharedProfile: React.FC = () => {
     );
   }
 
-  const { profile, type, documents, family_members } = data;
+  const { profile, type, documents } = data;
   
-  // Format Name
   const fullName = type === 'PATIENT' 
     ? `${profile.user?.first_name || ''} ${profile.user?.last_name || ''}`.trim() || "Primary Cardholder"
     : `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || "Family Member";
@@ -408,71 +400,6 @@ export const SharedProfile: React.FC = () => {
                     <span>View/Get File</span>
                   </a>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Family sub-profiles (only visible when viewing primary patient profile) */}
-        {type === 'PATIENT' && family_members && family_members.length > 0 && (
-          <div className="glass-card" style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '1.5rem',
-            border: '1px solid rgba(0, 137, 123, 0.15)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.05)'
-          }}>
-            <h3 style={{ 
-              fontSize: '1.2rem', 
-              marginBottom: '1.2rem', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem', 
-              color: '#1a3a3a' 
-            }}>
-              <User size={18} style={{ color: '#43a047' }} />
-              <span>Linked Family Members ({family_members.length})</span>
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: '#2c4a4a', marginBottom: '1rem' }}>
-              The following sub-profiles are connected to this primary health account. Scan or click to view their cards.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              {family_members.map((member, idx) => (
-                <a 
-                  key={idx}
-                  href={`/shared-profile/${member.qr_token}`}
-                  style={{
-                    display: 'block',
-                    padding: '1rem',
-                    background: 'rgba(0, 137, 123, 0.05)',
-                    border: '1px solid rgba(0, 137, 123, 0.1)',
-                    borderRadius: '12px',
-                    transition: 'all 0.3s ease',
-                    textDecoration: 'none'
-                  }}
-                  className="family-link-card"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(0, 137, 123, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 137, 123, 0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(0, 137, 123, 0.05)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#1a3a3a', marginBottom: '0.2rem' }}>{member.first_name} {member.last_name}</h4>
-                  <span style={{ 
-                    fontSize: '0.7rem', 
-                    padding: '0.1rem 0.4rem',
-                    background: 'rgba(0, 137, 123, 0.1)',
-                    border: '1px solid rgba(0, 137, 123, 0.2)',
-                    borderRadius: '4px',
-                    color: '#00897b'
-                  }}>{member.relationship}</span>
-                </a>
               ))}
             </div>
           </div>

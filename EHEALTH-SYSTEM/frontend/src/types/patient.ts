@@ -21,26 +21,6 @@ export interface PatientProfileData {
   last_scanned_at?: string | null;
 }
 
-export interface FamilyMemberData {
-  id: number;
-  first_name: string;
-  last_name: string;
-  relationship: string;
-  age: number | null;
-  gender: string;
-  blood_group: string;
-  emergency_contact: string;
-  major_allergies: string;
-  height: string;
-  weight: string;
-  active_prescription: string;
-  current_medication: string;
-  recent_pain: string;
-  qr_token: string;
-  scan_count?: number;
-  last_scanned_at?: string | null;
-}
-
 export interface DocumentData {
   id: number;
   title: string;

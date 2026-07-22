@@ -39,4 +39,7 @@ export const ENDPOINTS = {
   RESET_PASSWORD:   'auth/reset-password/',
   REGISTER_PATIENT: 'auth/register/patient/',
   DELETE_ACCOUNT:   'patients/delete-me/',
+  DOCTORS_LIST:     'doctors/',
+  DOCTOR_DETAIL:    'doctors/:id/',
+  RECOMMENDATIONS:  'doctors/recommendations/',
 } as const;

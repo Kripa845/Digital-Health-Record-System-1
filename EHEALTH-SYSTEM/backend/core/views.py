@@ -5,7 +5,6 @@ from apps.accounts.views import (
     RegisterPatientView,
     PatientProfileViewSet,
     MedicalHistoryEntryViewSet,
-    FamilyMemberProfileViewSet,
     PatientDocumentViewSet,
     login_init,
     login_verify,
@@ -17,8 +16,8 @@ from apps.accounts.views import (
     generate_qr_code,
     get_qr_token,
     send_otp_email,
-    contact_message_create,
 )
+from apps.contact.views import contact_message_create
 
 __all__ = [
     'CustomTokenObtainPairSerializer',
@@ -26,7 +25,6 @@ __all__ = [
     'RegisterPatientView',
     'PatientProfileViewSet',
     'MedicalHistoryEntryViewSet',
-    'FamilyMemberProfileViewSet',
     'PatientDocumentViewSet',
     'login_init',
     'login_verify',

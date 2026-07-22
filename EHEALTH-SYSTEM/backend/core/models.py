@@ -4,18 +4,14 @@
 
 from apps.accounts.models import User
 from apps.patients.models import PatientProfile
-from apps.family.models import FamilyMemberProfile
 from apps.medical_history.models import MedicalHistoryEntry
 from apps.documents.models import PatientDocument
-from apps.otp.models import PatientOTP
 from apps.contact.models import ContactMessage
 
 __all__ = [
     'User',
     'PatientProfile',
-    'FamilyMemberProfile',
     'MedicalHistoryEntry',
     'PatientDocument',
-    'PatientOTP',
     'ContactMessage',
 ]

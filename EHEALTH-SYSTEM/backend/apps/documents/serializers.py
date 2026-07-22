@@ -7,7 +7,7 @@ class PatientDocumentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = PatientDocument
-        fields = ['id', 'patient', 'family_member', 'title', 'file', 'file_url', 'file_size', 'file_type', 'uploaded_at']
+        fields = ['id', 'patient', 'title', 'file', 'file_url', 'file_size', 'file_type', 'uploaded_at']
         read_only_fields = ['id', 'patient', 'uploaded_at', 'file_size', 'file_type']
 
     def get_file_url(self, obj):

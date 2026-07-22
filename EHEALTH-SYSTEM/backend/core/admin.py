@@ -12,137 +12,12 @@ from django.utils.translation import gettext_lazy as _
 from django.template.response import TemplateResponse
 from django.contrib import messages
 
-from .models import User, PatientProfile, FamilyMemberProfile, PatientDocument, MedicalHistoryEntry, PatientOTP, ContactMessage
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Custom dynamic filters populated from the database
-# ──────────────────────────────────────────────────────────────────────────────
-
-class BloodGroupFilter(admin.SimpleListFilter):
-    title = "blood group"
-    parameter_name = "blood_group"
-
-    def lookups(self, request, model_admin):
-        return [(bg, bg) for bg in PatientProfile.objects.exclude(blood_group="").exclude(blood_group__isnull=True).values_list("blood_group", flat=True).distinct().order_by("blood_group")]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(blood_group=self.value())
-        return queryset
-
-
-class GenderFilter(admin.SimpleListFilter):
-    title = "gender"
-    parameter_name = "gender"
-
-    def lookups(self, request, model_admin):
-        return [(g, g) for g in PatientProfile.objects.exclude(gender="").exclude(gender__isnull=True).values_list("gender", flat=True).distinct().order_by("gender")]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(gender__iexact=self.value())
-        return queryset
-
-
-class RelationshipFilter(admin.SimpleListFilter):
-    title = "relationship"
-    parameter_name = "relationship"
-
-    def lookups(self, request, model_admin):
-        return [(r, r) for r in FamilyMemberProfile.objects.exclude(relationship="").values_list("relationship", flat=True).distinct().order_by("relationship")]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(relationship=self.value())
-        return queryset
-
-
-class DocumentTypeFilter(admin.SimpleListFilter):
-    title = "document type"
-    parameter_name = "file_type"
-
-    def lookups(self, request, model_admin):
-        return [(t, t) for t in PatientDocument.objects.exclude(file_type="").exclude(file_type__isnull=True).values_list("file_type", flat=True).distinct().order_by("file_type")]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(file_type__iexact=self.value())
-        return queryset
-
-
-class MedicalCategoryFilter(admin.SimpleListFilter):
-    title = "category"
-    parameter_name = "category"
-
-    def lookups(self, request, model_admin):
-        return [(c, c) for c in MedicalHistoryEntry.objects.exclude(category="").values_list("category", flat=True).distinct().order_by("category")]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(category__iexact=self.value())
-        return queryset
-
-
-class OwnerTypeFilter(admin.SimpleListFilter):
-    title = "owner type"
-    parameter_name = "owner_type"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("main", "Main Patient"),
-            ("family", "Family Member"),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "main":
-            return queryset.filter(family_member__isnull=True)
-        if self.value() == "family":
-            return queryset.filter(family_member__isnull=False)
-        return queryset
-
-
-class QRStatusFilter(admin.SimpleListFilter):
-    title = "qr status"
-    parameter_name = "qr_status"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("generated", "Generated"),
-            ("not_generated", "Not Generated"),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "generated":
-            return queryset.filter(qr_token__isnull=False)
-        if self.value() == "not_generated":
-            return queryset.filter(qr_token__isnull=True)
-        return queryset
+from .models import User, PatientProfile, PatientDocument, MedicalHistoryEntry, ContactMessage
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Inline Models
 # ──────────────────────────────────────────────────────────────────────────────
-
-class FamilyMemberProfileInline(admin.TabularInline):
-    model = FamilyMemberProfile
-    extra = 0
-    fields = (
-        'first_name',
-        'last_name',
-        'relationship',
-        'gender',
-        'blood_group',
-        'age',
-        'emergency_contact',
-        'qr_token',
-        'scan_count',
-        'last_scanned_at',
-    )
-    readonly_fields = ('qr_token', 'scan_count', 'last_scanned_at')
-    verbose_name = "Family Member"
-    verbose_name_plural = "Family Members"
-    show_change_link = True
 
 
 class PatientDocumentInline(admin.TabularInline):
@@ -153,7 +28,6 @@ class PatientDocumentInline(admin.TabularInline):
         'file',
         'file_type',
         'file_size',
-        'family_member',
         'uploaded_at',
     )
     readonly_fields = ('file_size', 'file_type', 'uploaded_at')
@@ -230,23 +104,6 @@ def mark_profile_setup_complete(model_admin, request, queryset):
     messages.success(request, f"{updated} patient profiles marked as complete.")
 
 mark_profile_setup_complete.short_description = "Mark selected profiles as complete"
-
-
-def mark_otp_used(model_admin, request, queryset):
-    updated = queryset.update(is_used=True)
-    messages.success(request, f"{updated} OTP records marked as used.")
-
-mark_otp_used.short_description = "Mark selected OTPs as used"
-
-
-def delete_expired_otps(model_admin, request, queryset):
-    cutoff = timezone.now() - datetime.timedelta(minutes=5)
-    expired = queryset.filter(created_at__lt=cutoff)
-    count = expired.count()
-    expired.delete()
-    messages.success(request, f"{count} expired OTP records deleted.")
-
-delete_expired_otps.short_description = "Delete expired OTPs"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -327,8 +184,8 @@ class PatientProfileAdmin(admin.ModelAdmin):
         'registration_date',
     )
     list_filter = (
-        GenderFilter,
-        BloodGroupFilter,
+        'gender',
+        'blood_group',
         'is_profile_setup',
         'user__role',
         'user__is_active',
@@ -397,7 +254,6 @@ class PatientProfileAdmin(admin.ModelAdmin):
     )
 
     inlines = [
-        FamilyMemberProfileInline,
         PatientDocumentInline,
         MedicalHistoryEntryInline,
     ]
@@ -452,129 +308,8 @@ class PatientProfileAdmin(admin.ModelAdmin):
         return super().get_queryset(request).select_related(
             'user',
         ).prefetch_related(
-            'family_members',
             'documents',
             'history_entries',
-        )
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Family Member Admin
-# ──────────────────────────────────────────────────────────────────────────────
-
-class FamilyMemberProfileAdmin(admin.ModelAdmin):
-    list_display = (
-        'first_name',
-        'last_name',
-        'patient_healthcare_id',
-        'patient_name',
-        'relationship',
-        'gender',
-        'blood_group',
-        'age',
-        'qr_status',
-        'scan_count',
-        'created_at',
-    )
-    list_filter = (
-        RelationshipFilter,
-        GenderFilter,
-        BloodGroupFilter,
-        'patient__healthcare_id',
-        'patient__user__is_active',
-        QRStatusFilter,
-        'created_at',
-    )
-    search_fields = (
-        'first_name',
-        'last_name',
-        'relationship',
-        'patient__healthcare_id',
-        'patient__user__username',
-        'patient__user__email',
-    )
-    ordering = ('-created_at',)
-    list_per_page = 25
-    date_hierarchy = 'created_at'
-    autocomplete_fields = ['patient']
-
-    readonly_fields = (
-        'qr_token',
-        'scan_count',
-        'last_scanned_at',
-        'qr_code_preview',
-    )
-
-    fieldsets = (
-        (None, {
-            'fields': ('patient', 'first_name', 'last_name', 'relationship'),
-        }),
-        ('Personal Information', {
-            'fields': (
-                'gender',
-                'blood_group',
-                'age',
-                'emergency_contact',
-            ),
-        }),
-        ('Medical Information', {
-            'fields': (
-                'height',
-                'weight',
-                'major_allergies',
-                'active_prescription',
-                'current_medication',
-                'recent_pain',
-            ),
-        }),
-        ('QR & Profile', {
-            'fields': (
-                'qr_token',
-                'qr_code_preview',
-                'scan_count',
-                'last_scanned_at',
-            ),
-        }),
-    )
-
-    actions = [export_as_csv, export_as_excel]
-
-    def full_name(self, obj):
-        return f"{obj.first_name} {obj.last_name}"
-    full_name.short_description = "Full Name"
-    full_name.admin_order_field = 'first_name'
-
-    def patient_healthcare_id(self, obj):
-        return obj.patient.healthcare_id
-    patient_healthcare_id.short_description = "Patient ID"
-    patient_healthcare_id.admin_order_field = 'patient__healthcare_id'
-
-    def patient_name(self, obj):
-        return obj.patient.user.get_full_name() or obj.patient.user.username
-    patient_name.short_description = "Patient Name"
-    patient_name.admin_order_field = 'patient__user__first_name'
-
-    def qr_status(self, obj):
-        if obj.qr_token:
-            return format_html('<span style="color: green;">✓ Generated</span>')
-        return format_html('<span style="color: red;">✗ Not Generated</span>')
-    qr_status.short_description = "QR Code"
-
-    def qr_code_preview(self, obj):
-        if obj.qr_token:
-            url = reverse('admin:core_familymemberprofile_change', args=[obj.pk])
-            return format_html(
-                '<a href="{}" target="_blank">View QR Token: {}</a>',
-                url, obj.qr_token
-            )
-        return "No QR token"
-    qr_code_preview.short_description = "QR Preview"
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            'patient__user',
-        ).prefetch_related(
-            'documents',
         )
 
 
@@ -591,7 +326,7 @@ class MedicalHistoryEntryAdmin(admin.ModelAdmin):
         'date_recorded',
     )
     list_filter = (
-        MedicalCategoryFilter,
+        'category',
         'date_recorded',
         'patient__healthcare_id',
     )
@@ -651,24 +386,20 @@ class PatientDocumentAdmin(admin.ModelAdmin):
         'uploaded_at',
     )
     list_filter = (
-        DocumentTypeFilter,
-        OwnerTypeFilter,
+        'file_type',
         'uploaded_at',
         'patient__healthcare_id',
-        'family_member',
     )
     search_fields = (
         'title',
         'patient__healthcare_id',
         'patient__user__username',
         'patient__user__email',
-        'family_member__first_name',
-        'family_member__last_name',
     )
     ordering = ('-uploaded_at',)
     list_per_page = 25
     date_hierarchy = 'uploaded_at'
-    autocomplete_fields = ['patient', 'family_member']
+    autocomplete_fields = ['patient']
 
     readonly_fields = (
         'file_size',
@@ -680,7 +411,7 @@ class PatientDocumentAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('patient', 'family_member', 'title'),
+            'fields': ('patient', 'title'),
         }),
         ('File Information', {
             'fields': (
@@ -707,9 +438,6 @@ class PatientDocumentAdmin(admin.ModelAdmin):
     patient_name.admin_order_field = 'patient__user__first_name'
 
     def owner_type(self, obj):
-        if obj.family_member:
-            name = f"{obj.family_member.first_name} {obj.family_member.last_name}"
-            return format_html('<span style="color: orange;">Family: {}</span>', name)
         return format_html('<span style="color: green;">Main Patient</span>')
     owner_type.short_description = "Owner"
 
@@ -744,64 +472,7 @@ class PatientDocumentAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
             'patient__user',
-            'family_member',
         )
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Patient OTP Admin
-# ──────────────────────────────────────────────────────────────────────────────
-
-class PatientOTPAdmin(admin.ModelAdmin):
-    list_display = (
-        'user',
-        'otp_code',
-        'is_used',
-        'is_expired_display',
-        'created_at',
-    )
-    list_filter = (
-        'is_used',
-        'user__role',
-        'user__is_active',
-        'created_at',
-    )
-    search_fields = (
-        'user__username',
-        'user__email',
-        'otp_code',
-    )
-    ordering = ('-created_at',)
-    list_per_page = 25
-    date_hierarchy = 'created_at'
-    autocomplete_fields = ['user']
-
-    readonly_fields = (
-        'otp_code',
-        'is_used',
-        'created_at',
-        'is_expired_display',
-    )
-
-    fieldsets = (
-        (None, {
-            'fields': ('user', 'otp_code', 'is_used'),
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'is_expired_display'),
-        }),
-    )
-
-    actions = [mark_otp_used, delete_expired_otps]
-
-    def is_expired_display(self, obj):
-        if obj.is_expired:
-            return format_html('<span style="color: red;">Expired</span>')
-        return format_html('<span style="color: green;">Valid</span>')
-    is_expired_display.short_description = "Status"
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user')
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -810,10 +481,8 @@ class PatientOTPAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(PatientProfile, PatientProfileAdmin)
-admin.site.register(FamilyMemberProfile, FamilyMemberProfileAdmin)
 admin.site.register(MedicalHistoryEntry, MedicalHistoryEntryAdmin)
 admin.site.register(PatientDocument, PatientDocumentAdmin)
-admin.site.register(PatientOTP, PatientOTPAdmin)
 
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'is_read', 'created_at')
@@ -823,36 +492,3 @@ class ContactMessageAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
 
 admin.site.register(ContactMessage, ContactMessageAdmin)
-
-# Monkey-patch the admin index to inject dashboard data
-from django.contrib import admin as django_admin
-from .dashboard_data import get_dashboard_stats, get_chart_data, get_recent_activity, get_filter_options
-
-_original_index = django_admin.site.index
-
-def _patched_index(request, extra_context=None):
-    if not request.user or not request.user.is_active or not request.user.is_staff:
-        return django_admin.site.login(request)
-
-    stats = get_dashboard_stats()
-    chart_data = get_chart_data()
-    recent_activity = get_recent_activity()
-    filter_options = get_filter_options()
-    extra_context = extra_context or {}
-    extra_context['stats'] = stats
-    extra_context['chart_data'] = chart_data
-    extra_context['recent_activity'] = recent_activity
-    extra_context['filter_options'] = filter_options
-
-    quick_links = [
-        {"name": "Manage Patients", "url": "/admin/core/patientprofile/", "icon": "fas fa-hospital-user", "color": "primary"},
-        {"name": "Documents", "url": "/admin/core/patientdocument/", "icon": "fas fa-file-medical", "color": "warning"},
-        {"name": "Family Members", "url": "/admin/core/familymemberprofile/", "icon": "fas fa-user-friends", "color": "info"},
-        {"name": "QR Analytics", "url": "/admin/core/patientprofile/", "icon": "fas fa-qrcode", "color": "secondary"},
-        {"name": "OTP Management", "url": "/admin/core/patientotp/", "icon": "fas fa-key", "color": "dark"},
-    ]
-    extra_context['quick_links'] = quick_links
-
-    return _original_index(request, extra_context)
-
-django_admin.site.index = _patched_index

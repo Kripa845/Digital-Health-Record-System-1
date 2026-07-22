@@ -7,22 +7,20 @@ from apps.accounts.views import (
     RegisterPatientView,
     PatientProfileViewSet,
     MedicalHistoryEntryViewSet,
-    FamilyMemberProfileViewSet,
     PatientDocumentViewSet,
     login_init,
     login_verify,
     forgot_password,
     reset_password,
-    public_profile,
     verify_reset_otp,
     health_check,
+    public_profile,
     get_qr_token
 )
 
 router = DefaultRouter()
 router.register(r'patients', PatientProfileViewSet, basename='patient-profile')
 router.register(r'history', MedicalHistoryEntryViewSet, basename='medical-history')
-router.register(r'family', FamilyMemberProfileViewSet, basename='family-member')
 router.register(r'documents', PatientDocumentViewSet, basename='patient-document')
 
 urlpatterns = [

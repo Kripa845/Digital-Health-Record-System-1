@@ -2,7 +2,6 @@
 from apps.accounts.serializers import (
     UserSerializer,
     PatientProfileSerializer,
-    FamilyMemberProfileSerializer,
     PatientDocumentSerializer,
     RegisterPatientSerializer,
     MedicalHistoryEntrySerializer,
@@ -12,7 +11,6 @@ from apps.accounts.serializers import (
 __all__ = [
     'UserSerializer',
     'PatientProfileSerializer',
-    'FamilyMemberProfileSerializer',
     'PatientDocumentSerializer',
     'RegisterPatientSerializer',
     'MedicalHistoryEntrySerializer',

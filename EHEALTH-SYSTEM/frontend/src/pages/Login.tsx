@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { KeyRound, User as UserIcon, Lock, AlertCircle, ShieldAlert, Sparkles, CheckCircle, Eye, EyeOff } from 'lucide-react';
-import { colors, glassCard, glassCardInput, label, value } from '../styles/theme';
+import { colors, glassCard, glassCardInput, label, value } from '../theme/theme';
 
 export const Login: React.FC = () => {
   const { loginInit, loginVerify, forgotPassword, resetPassword, user, serverStatus, prewarmServer, ensureServerWarm } = useAuth();
@@ -35,9 +35,11 @@ export const Login: React.FC = () => {
   useEffect(() => {
     if (user) {
       if (user.role === 'PATIENT') {
-        navigate('/patient-dashboard');
+        navigate('/patient/dashboard');
+      } else if (user.role === 'DOCTOR') {
+        navigate('/doctor/dashboard');
       } else {
-        navigate('/admin-dashboard');
+        navigate('/admin/dashboard');
       }
     }
   }, [user, navigate]);

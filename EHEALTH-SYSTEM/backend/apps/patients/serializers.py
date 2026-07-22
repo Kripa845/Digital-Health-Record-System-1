@@ -4,7 +4,6 @@ from django.db import transaction
 
 from apps.accounts.models import User
 from apps.patients.models import PatientProfile
-from apps.family.models import FamilyMemberProfile
 from apps.medical_history.models import MedicalHistoryEntry
 from apps.documents.models import PatientDocument
 
@@ -30,23 +29,12 @@ class PatientProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'healthcare_id', 'qr_token', 'scan_count', 'last_scanned_at']
 
 
-class FamilyMemberProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FamilyMemberProfile
-        fields = [
-            'id', 'patient', 'first_name', 'last_name', 'relationship', 'age', 'gender', 
-            'blood_group', 'emergency_contact', 'major_allergies', 'height', 'weight', 
-            'active_prescription', 'current_medication', 'recent_pain', 'qr_token', 'created_at',
-        ]
-        read_only_fields = ['id', 'patient', 'qr_token', 'created_at']
-
-
 class PatientDocumentSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
     
     class Meta:
         model = PatientDocument
-        fields = ['id', 'patient', 'family_member', 'title', 'file', 'file_url', 'file_size', 'file_type', 'uploaded_at']
+        fields = ['id', 'patient', 'title', 'file', 'file_url', 'file_size', 'file_type', 'uploaded_at']
         read_only_fields = ['id', 'patient', 'uploaded_at', 'file_size', 'file_type']
 
     def get_file_url(self, obj):

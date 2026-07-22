@@ -5,7 +5,7 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  role: 'PATIENT' | 'ADMIN';
+  role: 'PATIENT' | 'ADMIN' | 'DOCTOR';
   first_name?: string;
   last_name?: string;
   healthcare_id?: string;

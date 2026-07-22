@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, HeartHandshake, QrCode, FilePlus2, UserCheck, Stethoscope, Mail, Phone, MapPin, Send, Fullscreen } from 'lucide-react';
-import { colors, glassCard, glassCardLight, glassCardInput, label, value } from '../styles/theme';
+import { colors, glassCard, glassCardLight, glassCardInput, label, value } from '../theme/theme';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();
@@ -67,7 +67,7 @@ export const Home: React.FC = () => {
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           {user ? (
             <Link 
-              to={user.role === 'PATIENT' ? '/patient-dashboard' : '/admin-dashboard'} 
+              to={user.role === 'PATIENT' ? '/patient/dashboard' : user.role === 'DOCTOR' ? '/doctor/dashboard' : '/admin/dashboard'} 
               style={{
                 background: colors.gradientPrimaryBtn,
                 border: 'none',
@@ -218,20 +218,6 @@ export const Home: React.FC = () => {
             <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: colors.textPrimary }}>Document Library</h3>
             <p style={{ fontSize: '0.9rem', color: colors.textSecondary }}>
               Upload and organize files directly from your device storage—prescriptions, imaging scans, and clinic lab reports in one place.
-            </p>
-          </div>
-
-          <div style={{
-            ...glassCard,
-            transition: 'all 0.3s ease',
-            border: `1px solid ${colors.successBorder}`
-          }}>
-            <div style={{ color: colors.secondary }}>
-              <UserCheck size={24} />
-            </div>
-            <h3 style={{ marginBottom: '0.8rem', fontSize: '1.25rem', color: colors.textPrimary }}>Family Sub-Profiles</h3>
-            <p style={{ fontSize: '0.9rem', color: colors.textSecondary }}>
-              Add sub-profiles for family members to keep emergency medical records, allergy diaries, and unique download passes for the whole house.
             </p>
           </div>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, CheckCircle, AlertCircle, Eye, EyeOff, Check } from 'lucide-react';
-import { colors, glassCard, glassCardInput, label, value } from '../styles/theme';
+import { colors, glassCard, glassCardInput, label, value } from '../theme/theme';
 
 export const Register: React.FC = () => {
   const { registerPatient } = useAuth();

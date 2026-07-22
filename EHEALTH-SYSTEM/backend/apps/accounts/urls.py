@@ -14,17 +14,16 @@ from apps.accounts.views import (
     public_profile,
     generate_qr_code,
     get_qr_token,
+    AdminStatsView,
 )
 from apps.contact.views import contact_message_create
 from apps.patients.views import PatientProfileViewSet
 from apps.medical_history.views import MedicalHistoryEntryViewSet
-from apps.family.views import FamilyMemberProfileViewSet
 from apps.documents.views import PatientDocumentViewSet
 
 router = DefaultRouter()
 router.register(r'patients', PatientProfileViewSet, basename='patient-profile')
 router.register(r'history', MedicalHistoryEntryViewSet, basename='medical-history')
-router.register(r'family', FamilyMemberProfileViewSet, basename='family-member')
 router.register(r'documents', PatientDocumentViewSet, basename='patient-document')
 
 urlpatterns = [
@@ -41,6 +40,7 @@ urlpatterns = [
     path('qr-token/<str:profile_type>/<int:profile_id>/', get_qr_token, name='get-qr-token'),
     path('qr-token/me/', get_qr_token, name='get-qr-token-me'),
     path('generate-qr/', generate_qr_code, name='generate-qr'),
+    path('admin-stats/', AdminStatsView.as_view(), name='admin-stats'),
     path('contact/', contact_message_create, name='contact-message-create'),
     path('', include(router.urls)),
 ]
