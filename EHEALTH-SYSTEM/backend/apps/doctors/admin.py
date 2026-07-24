@@ -1,4 +1,5 @@
 from django.contrib import admin
+<<<<<<< HEAD
 from django.utils.html import format_html
 from .models import DoctorProfile
 
@@ -75,3 +76,13 @@ class DoctorProfileAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'created_by').prefetch_related('assigned_patients')
+=======
+from apps.doctors.models import DoctorProfile
+
+@admin.register(DoctorProfile)
+class DoctorProfileAdmin(admin.ModelAdmin):
+    list_display = ['doctor_id', 'first_name', 'last_name', 'specialization', 'department', 'status', 'phone_number']
+    search_fields = ['doctor_id', 'first_name', 'last_name', 'specialization', 'phone_number']
+    list_filter = ['status', 'department', 'specialization']
+    readonly_fields = ['doctor_id', 'registration_date']
+>>>>>>> c47456f7800640b06be9d45b184323eeaa77dee9

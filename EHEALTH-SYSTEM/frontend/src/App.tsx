@@ -3,15 +3,22 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Home } from './pages/Home';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { PatientDashboard } from './pages/PatientDashboard';
+import { Landing } from './pages/Landing';
+import { RoleSelectLogin } from './pages/RoleSelectLogin';
+import { AdminLogin } from './pages/AdminLogin';
+import { PatientLogin } from './pages/PatientLogin';
+import { DoctorLogin } from './pages/DoctorLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminPatientManagement } from './pages/AdminPatientManagement';
+import { AdminDoctorManagement } from './pages/AdminDoctorManagement';
+import { AdminRecommendations } from './pages/AdminRecommendations';
+import { DoctorDashboard, MyPatients, DoctorProfile } from './pages/DoctorDashboard';
+import { PatientPortal } from './pages/PatientPortal';
 import { SharedProfile } from './pages/SharedProfile';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { DoctorLayout } from './components/doctor/DoctorLayout';
+import { PatientLayout } from './components/patient/PatientLayout';
 
-
-// Layout that wraps standard pages and includes the Navbar
 const MainLayout: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -28,33 +35,40 @@ const App: React.FC = () => {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public scanned QR profile page - renders with NO navbar */}
           <Route path="/shared-profile/:token" element={<SharedProfile />} />
-          
-          {/* Standard pages wrapping navbar */}
+
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            <Route 
-              path="/patient-dashboard" 
-              element={
-                <ProtectedRoute allowedRole="PATIENT">
-                  <PatientDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            <Route 
-              path="/admin-dashboard" 
-              element={
-                <ProtectedRoute allowedRole="ADMIN">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<RoleSelectLogin />} />
+            <Route path="/login/admin" element={<AdminLogin />} />
+            <Route path="/login/patient" element={<PatientLogin />} />
+            <Route path="/login/doctor" element={<DoctorLogin />} />
+            <Route path="/register" element={<Navigate to="/" replace />} />
+
+            <Route path="/admin" element={<ProtectedRoute allowedRole="ADMIN"><AdminLayout /></ProtectedRoute>}>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="patients" element={<AdminPatientManagement />} />
+              <Route path="doctors" element={<AdminDoctorManagement />} />
+              <Route path="recommendations" element={<AdminRecommendations />} />
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+            </Route>
+
+            <Route path="/doctor" element={<ProtectedRoute allowedRole="DOCTOR"><DoctorLayout /></ProtectedRoute>}>
+              <Route path="dashboard" element={<DoctorDashboard />} />
+              <Route path="my-patients" element={<MyPatients />} />
+              <Route path="profile" element={<DoctorProfile />} />
+              <Route index element={<Navigate to="/doctor/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/doctor/dashboard" replace />} />
+            </Route>
+
+            <Route path="/patient" element={<ProtectedRoute allowedRole="PATIENT"><PatientLayout /></ProtectedRoute>}>
+              <Route path="dashboard" element={<PatientPortal />} />
+              <Route path="my-qr" element={<PatientPortal />} />
+              <Route index element={<Navigate to="/patient/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/patient/dashboard" replace />} />
+            </Route>
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

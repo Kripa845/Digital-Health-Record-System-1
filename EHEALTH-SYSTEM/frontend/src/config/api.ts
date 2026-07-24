@@ -33,10 +33,10 @@ export const buildUrl = (endpoint: string): string => {
 };
 
 export const ENDPOINTS = {
-  LOGIN:            'auth/login-init/',
-  LOGIN_VERIFY:     'auth/login-verify/',
-  FORGOT_PASSWORD:  'auth/forgot-password/',
-  RESET_PASSWORD:   'auth/reset-password/',
+  LOGIN: 'auth/login/',
   REGISTER_PATIENT: 'auth/register/patient/',
-  DELETE_ACCOUNT:   'patients/delete-me/',
+  DELETE_ACCOUNT: 'patients/delete-me/',
+  DOCTORS_LIST: 'doctors/',
+  DOCTOR_DETAIL: 'doctors/:id/',
+  RECOMMENDATIONS: 'doctors/recommendations/',
 } as const;

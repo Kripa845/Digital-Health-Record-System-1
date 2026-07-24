@@ -5,19 +5,13 @@ from apps.accounts.views import (
     RegisterPatientView,
     PatientProfileViewSet,
     MedicalHistoryEntryViewSet,
-    FamilyMemberProfileViewSet,
     PatientDocumentViewSet,
-    login_init,
-    login_verify,
-    forgot_password,
-    reset_password,
-    verify_reset_otp,
     health_check,
     public_profile,
     generate_qr_code,
     get_qr_token,
-    send_otp_email,
 )
+from apps.contact.views import contact_message_create
 
 __all__ = [
     'CustomTokenObtainPairSerializer',
@@ -25,16 +19,10 @@ __all__ = [
     'RegisterPatientView',
     'PatientProfileViewSet',
     'MedicalHistoryEntryViewSet',
-    'FamilyMemberProfileViewSet',
     'PatientDocumentViewSet',
-    'login_init',
-    'login_verify',
-    'forgot_password',
-    'reset_password',
-    'verify_reset_otp',
     'health_check',
     'public_profile',
     'generate_qr_code',
     'get_qr_token',
-    'send_otp_email',
+    'contact_message_create',
 ]

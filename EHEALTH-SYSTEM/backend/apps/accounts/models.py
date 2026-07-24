@@ -11,6 +11,7 @@ class User(AbstractUser):
     class Role(models.TextChoices):
         PATIENT = 'PATIENT', 'Patient'
         ADMIN = 'ADMIN', 'Admin/Institution'
+        DOCTOR = 'DOCTOR', 'Doctor'
 
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.PATIENT)
     email = models.EmailField(blank=True, null=True)

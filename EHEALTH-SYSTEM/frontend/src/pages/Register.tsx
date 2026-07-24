@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, CheckCircle, AlertCircle, Eye, EyeOff, Check } from 'lucide-react';
+import { colors, glassCard, glassCardInput, label, value } from '../theme/theme';
 
 export const Register: React.FC = () => {
   const { registerPatient } = useAuth();
@@ -114,24 +115,20 @@ export const Register: React.FC = () => {
   const isPasswordValid = passwordErrors.length === 0 && password.length > 0;
 
   return (
-    <div className="container" style={{ 
+    <div style={{ 
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center', 
       minHeight: '85vh', 
       padding: '3rem 1.5rem',
-      background: 'linear-gradient(135deg, #e8f5e9 0%, #e0f2f1 30%, #b2dfdb 60%, #c8e6c9 100%)'
+      background: colors.bgPageGradient
     }}>
-      <div className="glass-card" style={{ 
+      <div style={{ 
+        ...glassCard,
         width: '100%', 
         maxWidth: '600px', 
         position: 'relative',
-        background: 'rgba(255,255,255,0.85)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: '20px',
         padding: '2.5rem',
-        border: '1px solid rgba(0, 137, 123, 0.15)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.05)',
         maxHeight: '90vh',
         overflowY: 'auto'
       }}>
@@ -145,35 +142,35 @@ export const Register: React.FC = () => {
           width: '120px',
           height: '120px',
           borderRadius: '50%',
-          background: 'rgba(0, 137, 123, 0.15)',
+          background: `rgba(0, 137, 123, 0.15)`,
           filter: 'blur(30px)',
           pointerEvents: 'none'
         }}></div>
 
         {success ? (
           <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-            <CheckCircle size={64} style={{ color: '#43a047', marginBottom: '1.5rem' }} className="pulse-glow" />
-            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: '#1a3a3a' }}>Account Created!</h2>
-            <p style={{ color: '#2c4a4a' }}>Redirecting to secure portal sign-in...</p>
+            <CheckCircle size={64} style={{ color: colors.secondary, marginBottom: '1.5rem' }} />
+            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: colors.textPrimary }}>Account Created!</h2>
+            <p style={{ color: colors.textSecondary }}>Redirecting to secure portal sign-in...</p>
           </div>
         ) : (
           <>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div className="feature-icon-wrapper" style={{ 
+              <div style={{ 
                 margin: '0 auto 1rem',
                 width: '60px',
                 height: '60px',
-                background: 'rgba(0, 137, 123, 0.1)',
+                background: colors.tealGhostStrong,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#00897b'
+                color: colors.primary
               }}>
                 <UserPlus size={24} />
               </div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: '#1a3a3a' }}>Register Patient Account</h2>
-              <p style={{ color: '#2c4a4a', fontSize: '0.9rem' }}>Create a secure electronic medical passport.</p>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.4rem', color: colors.textPrimary }}>Register Patient Account</h2>
+              <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>Create a secure electronic medical passport.</p>
             </div>
 
             {error && (
@@ -181,11 +178,11 @@ export const Register: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.6rem',
-                color: '#d32f2f',
-                background: 'rgba(211, 47, 47, 0.1)',
-                border: '1px solid rgba(211, 47, 47, 0.2)',
+                color: colors.errorLight,
+                background: colors.errorBg,
+                border: `1px solid ${colors.errorBorder}`,
                 padding: '0.8rem 1rem',
-                borderRadius: '12px',
+                borderRadius: colors.radiusXl,
                 fontSize: '0.85rem',
                 marginBottom: '1.5rem'
               }}>
@@ -198,8 +195,8 @@ export const Register: React.FC = () => {
               
               <h4 style={{ 
                 fontSize: '1rem', 
-                color: '#1a3a3a', 
-                borderBottom: '1px solid rgba(0, 137, 123, 0.15)', 
+                color: colors.textPrimary, 
+                borderBottom: `1px solid ${colors.borderGlass}`, 
                 paddingBottom: '0.5rem', 
                 marginBottom: '1rem' 
               }}>
@@ -207,43 +204,27 @@ export const Register: React.FC = () => {
               </h4>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Username *</label>
+                <div>
+                  <label style={{ ...label }}>Username *</label>
                   <input 
                     type="text" 
                     placeholder="john_doe"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     required
                     disabled={loading}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Email *</label>
+                <div>
+                  <label style={{ ...label }}>Email *</label>
                   <input 
                     type="email" 
                     placeholder="john@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     required
                     disabled={loading}
                   />
@@ -251,22 +232,20 @@ export const Register: React.FC = () => {
               </div>
 
               {/* Password Field */}
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Password *</label>
+              <div>
+                <label style={{ ...label }}>Password *</label>
                 <div style={{ position: 'relative' }}>
                   <input 
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
                     value={password}
                     onChange={handlePasswordChange}
-                    className="form-input"
                     style={{
-                      width: '100%',
-                      padding: '0.8rem 2.5rem 0.8rem 0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: `1px solid ${passwordTouched ? (isPasswordValid ? 'rgba(67, 160, 71, 0.5)' : 'rgba(211, 47, 47, 0.5)') : 'rgba(0, 137, 123, 0.15)'}`,
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
+                      ...glassCardInput,
+                      paddingRight: '2.5rem',
+                      borderColor: passwordTouched 
+                        ? (isPasswordValid ? colors.successBorder : colors.errorBorder)
+                        : colors.borderGlass
                     }}
                     required
                     disabled={loading}
@@ -281,7 +260,7 @@ export const Register: React.FC = () => {
                       transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
-                      color: '#2c4a4a',
+                      color: colors.textSecondary,
                       cursor: 'pointer',
                       padding: '0.2rem',
                       display: 'flex',
@@ -296,14 +275,14 @@ export const Register: React.FC = () => {
               {/* Password Requirements */}
               {passwordTouched && (
                 <div style={{
-                  background: 'rgba(0, 137, 123, 0.05)',
-                  border: '1px solid rgba(0, 137, 123, 0.1)',
-                  borderRadius: '10px',
+                  background: colors.tealGhost,
+                  border: `1px solid ${colors.borderGlass}`,
+                  borderRadius: colors.radiusLg,
                   padding: '0.8rem 1rem',
                   marginBottom: '1rem',
                   fontSize: '0.8rem'
                 }}>
-                  <p style={{ color: '#1a3a3a', fontWeight: 600, marginBottom: '0.4rem' }}>Password Requirements:</p>
+                  <p style={{ color: colors.textPrimary, fontWeight: 600, marginBottom: '0.4rem' }}>Password Requirements:</p>
                   <ul style={{ 
                     listStyle: 'none', 
                     padding: 0, 
@@ -323,10 +302,10 @@ export const Register: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.4rem',
-                        color: req.check ? '#43a047' : '#2c4a4a'
+                        color: req.check ? colors.secondary : colors.textSecondary
                       }}>
                         <Check size={14} style={{ 
-                          color: req.check ? '#43a047' : '#2c4a4a',
+                          color: req.check ? colors.secondary : colors.textSecondary,
                           opacity: req.check ? 1 : 0.3
                         }} />
                         <span>{req.text}</span>
@@ -337,22 +316,20 @@ export const Register: React.FC = () => {
               )}
 
               {/* Confirm Password Field */}
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Confirm Password *</label>
+              <div>
+                <label style={{ ...label }}>Confirm Password *</label>
                 <div style={{ position: 'relative' }}>
                   <input 
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="form-input"
                     style={{
-                      width: '100%',
-                      padding: '0.8rem 2.5rem 0.8rem 0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: `1px solid ${confirmPassword ? (password === confirmPassword ? 'rgba(67, 160, 71, 0.5)' : 'rgba(211, 47, 47, 0.5)') : 'rgba(0, 137, 123, 0.15)'}`,
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
+                      ...glassCardInput,
+                      paddingRight: '2.5rem',
+                      borderColor: confirmPassword 
+                        ? (password === confirmPassword ? colors.successBorder : colors.errorBorder)
+                        : colors.borderGlass
                     }}
                     required
                     disabled={loading}
@@ -367,7 +344,7 @@ export const Register: React.FC = () => {
                       transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
-                      color: '#2c4a4a',
+                      color: colors.textSecondary,
                       cursor: 'pointer',
                       padding: '0.2rem',
                       display: 'flex',
@@ -378,12 +355,12 @@ export const Register: React.FC = () => {
                   </button>
                 </div>
                 {confirmPassword && password !== confirmPassword && (
-                  <p style={{ color: '#d32f2f', fontSize: '0.8rem', marginTop: '0.3rem' }}>
+                  <p style={{ color: colors.errorLight, fontSize: '0.8rem', marginTop: '0.3rem' }}>
                     Passwords do not match
                   </p>
                 )}
                 {confirmPassword && password === confirmPassword && password.length > 0 && (
-                  <p style={{ color: '#43a047', fontSize: '0.8rem', marginTop: '0.3rem' }}>
+                  <p style={{ color: colors.secondary, fontSize: '0.8rem', marginTop: '0.3rem' }}>
                     ✓ Passwords match
                   </p>
                 )}
@@ -391,8 +368,8 @@ export const Register: React.FC = () => {
 
               <h4 style={{ 
                 fontSize: '1rem', 
-                color: '#1a3a3a', 
-                borderBottom: '1px solid rgba(0, 137, 123, 0.15)', 
+                color: colors.textPrimary, 
+                borderBottom: `1px solid ${colors.borderGlass}`, 
                 paddingBottom: '0.5rem', 
                 marginTop: '1.8rem', 
                 marginBottom: '1rem' 
@@ -401,79 +378,47 @@ export const Register: React.FC = () => {
               </h4>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>First Name</label>
+                <div>
+                  <label style={{ ...label }}>First Name</label>
                   <input 
                     type="text" 
                     placeholder="John"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     disabled={loading}
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Last Name</label>
+                <div>
+                  <label style={{ ...label }}>Last Name</label>
                   <input 
                     type="text" 
                     placeholder="Doe"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     disabled={loading}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Date of Birth</label>
+                <div>
+                  <label style={{ ...label }}>Date of Birth</label>
                   <input 
                     type="date" 
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     disabled={loading}
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Gender</label>
+                <div>
+                  <label style={{ ...label }}>Gender</label>
                   <select 
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     disabled={loading}
                   >
                     <option value="">Select</option>
@@ -482,20 +427,12 @@ export const Register: React.FC = () => {
                     <option value="Other">Other</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ color: '#2c4a4a' }}>Blood Type</label>
+                <div>
+                  <label style={{ ...label }}>Blood Type</label>
                   <select 
                     value={bloodType}
                     onChange={(e) => setBloodType(e.target.value)}
-                    className="form-input"
-                    style={{
-                      width: '100%',
-                      padding: '0.8rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(0, 137, 123, 0.15)',
-                      borderRadius: '10px',
-                      color: '#1a3a3a'
-                    }}
+                    style={glassCardInput}
                     disabled={loading}
                   >
                     <option value="">Select</option>
@@ -511,42 +448,28 @@ export const Register: React.FC = () => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Contact Number</label>
+              <div>
+                <label style={{ ...label }}>Contact Number</label>
                 <input 
                   type="text" 
                   placeholder="+1 (555) 000-0000"
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
-                  className="form-input"
-                  style={{
-                    width: '100%',
-                    padding: '0.8rem',
-                    background: 'rgba(255,255,255,0.5)',
-                    border: '1px solid rgba(0, 137, 123, 0.15)',
-                    borderRadius: '10px',
-                    color: '#1a3a3a'
-                  }}
+                  style={glassCardInput}
                   disabled={loading}
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: '2rem' }}>
-                <label className="form-label" style={{ color: '#2c4a4a' }}>Address</label>
+              <div style={{ marginBottom: '2rem' }}>
+                <label style={{ ...label }}>Address</label>
                 <textarea 
                   placeholder="Street, City, Country"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="form-input"
                   style={{
-                    width: '100%',
-                    padding: '0.8rem',
+                    ...glassCardInput,
                     minHeight: '80px',
-                    resize: 'vertical',
-                    background: 'rgba(255,255,255,0.5)',
-                    border: '1px solid rgba(0, 137, 123, 0.15)',
-                    borderRadius: '10px',
-                    color: '#1a3a3a'
+                    resize: 'vertical'
                   }}
                   disabled={loading}
                 />
@@ -554,16 +477,16 @@ export const Register: React.FC = () => {
 
               <button 
                 type="submit" 
-                className="btn btn-primary" 
                 style={{
                   width: '100%',
                   padding: '1rem',
-                  background: 'linear-gradient(135deg, #00897b, #43a047)',
+                  background: colors.gradientPrimaryBtn,
                   border: 'none',
-                  borderRadius: '10px',
-                  color: '#fff',
+                  borderRadius: colors.radiusLg,
+                  color: colors.onPrimary,
                   fontWeight: 600,
                   cursor: 'pointer',
+                  boxShadow: colors.shadowPrimaryBtn,
                   opacity: loading ? 0.7 : 1
                 }}
                 disabled={loading}
@@ -573,9 +496,9 @@ export const Register: React.FC = () => {
 
             </form>
 
-            <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: '#2c4a4a' }}>
+            <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: colors.textSecondary }}>
               Already registered?{' '}
-              <Link to="/login" style={{ color: '#00897b', fontWeight: 600, textDecoration: 'none' }}>
+              <Link to="/login" style={{ color: colors.primary, fontWeight: 600, textDecoration: 'none' }}>
                 Sign In here
               </Link>
             </div>

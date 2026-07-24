@@ -4,16 +4,26 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
+from apps.accounts.models import User
 from apps.patients.models import PatientProfile
 from apps.patients.serializers import PatientProfileSerializer
 
 
-class PatientProfileViewSet(viewsets.ViewSet):
+class PatientProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PatientProfileSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == User.Role.ADMIN:
+            return PatientProfile.objects.select_related('user').all()
+        if user.role == User.Role.PATIENT:
+            return PatientProfile.objects.filter(user=user)
+        return PatientProfile.objects.none()
 
     @action(detail=False, methods=['get', 'put', 'patch'], url_path='me')
     def me(self, request):
-        if request.user.role != 'PATIENT':
+        if request.user.role != User.Role.PATIENT:
             return Response(
                 {"detail": "Only patients have personal profiles."},
                 status=status.HTTP_403_FORBIDDEN,
